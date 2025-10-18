@@ -16,7 +16,9 @@ export default defineConfig([
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
     ],
-    plugins: [prettier],
+    plugins: {
+      prettier: prettier,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
