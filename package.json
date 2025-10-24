@@ -18,7 +18,8 @@
     "graphql": "^16.11.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4",
+    "react-helmet": "^6.1.0",
+    "react-router": "^7.9.4",
     "tailwindcss": "^4.1.16"
   },
   "devDependencies": {
@@ -28,6 +29,7 @@
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
+    "@types/react-helmet": "^6.1.11",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
