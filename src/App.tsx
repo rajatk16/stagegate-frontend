@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router';
 
-import { AuthPage, LandingPage } from '@/pages';
+import { AuthPage, LandingPage, NotFoundPage } from '@/pages';
 
 function App() {
   return (
@@ -8,6 +8,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );

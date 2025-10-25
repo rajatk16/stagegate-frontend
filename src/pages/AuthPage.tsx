@@ -1,7 +1,7 @@
-import { Helmet } from 'react-helmet';
 import { Link } from 'react-router';
+import { Helmet } from 'react-helmet';
 
-import { Header, LoginForm, RegisterForm } from '@/components';
+import { Footer, Header, LoginForm, RegisterForm } from '@/components';
 
 export const AuthPage = () => {
   return (
@@ -45,6 +45,7 @@ export const AuthPage = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };
