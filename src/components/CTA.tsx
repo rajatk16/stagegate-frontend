@@ -8,7 +8,7 @@ export const CTA = () => (
     </p>
     <div className="mt-6">
       <Link
-        to="/auth/signup"
+        to="/auth"
         className="px-8 py-3 bg-white text-brand-600 font-medium rounded-lg hover:bg-gray-100 transition"
       >
         Get Started for Free
