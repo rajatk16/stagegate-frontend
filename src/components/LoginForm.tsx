@@ -52,7 +52,7 @@ export const LoginForm = () => {
       </div>
       <button
         type="submit"
-        className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-lg transition"
+        className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-lg transition cursor-pointer"
       >
         Login
       </button>

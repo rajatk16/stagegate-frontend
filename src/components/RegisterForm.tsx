@@ -214,7 +214,9 @@ export const RegisterForm = () => {
         type="submit"
         disabled={!isFormValid}
         className={`w-full py-3 rounded-lg text-white font-semibold transition ${
-          isFormValid ? 'bg-brand-500 hover:bg-brand-600' : 'bg-gray-400 cursor-not-allowed'
+          isFormValid
+            ? 'bg-brand-500 hover:bg-brand-600 cursor-pointer'
+            : 'bg-gray-400 cursor-not-allowed'
         }`}
       >
         Sign Up
