@@ -12,7 +12,7 @@ export const Hero = () => (
       </p>
       <div className="mt-8">
         <Link
-          to="/auth/signup"
+          to="/auth"
           className="px-8 py-3 rounded-lg bg-brand-500 text-white font-medium hover:bg-brand-600 transition"
         >
           Get Started
