@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { useMutation } from '@apollo/client/react';
+
+import { SIGN_UP_MUTATION } from '@/graphql/mutations';
+import type { SignUpInput, SignUpResponse } from '@/types';
 
 export const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +14,11 @@ export const RegisterForm = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [validFields, setValidFields] = useState<Record<string, boolean>>({});
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const [signUp, { loading }] = useMutation<SignUpResponse, { input: SignUpInput }>(
+    SIGN_UP_MUTATION,
+  );
 
   // password rule checks
   const passwordChecks = {
@@ -70,10 +79,34 @@ export const RegisterForm = () => {
     Object.values(validFields).every((v) => v === true) &&
     Object.keys(validFields).length === Object.keys(formData).length;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
-    console.log('✅ Signup form valid:', formData);
+
+    try {
+      const { data } = await signUp({
+        variables: {
+          input: {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+          },
+        },
+      });
+
+      if (data?.signUp.user) {
+        setSuccessMessage(
+          `Welcome, ${data.signUp.user.name}! 🎉 Your account has been created.`,
+        );
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      setErrors((prev) => ({
+        ...prev,
+        form: error.message || 'An unexpected error occurred. Please try again.',
+      }));
+    }
   };
 
   const fieldClass = (field: string) => {
@@ -94,7 +127,15 @@ export const RegisterForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
-      {/* Full Name */}
+      {errors.form && (
+        <div className="bg-red-50 text-red-600 text-sm p-2 rounded-md">{errors.form}</div>
+      )}
+      {successMessage && (
+        <div className="bg-green-50 text-green-600 text-sm p-2 rounded-md">
+          {successMessage}
+        </div>
+      )}
+
       <div>
         <label
           htmlFor="name"
@@ -119,7 +160,6 @@ export const RegisterForm = () => {
         ) : null}
       </div>
 
-      {/* Email */}
       <div>
         <label
           htmlFor="email"
@@ -144,7 +184,6 @@ export const RegisterForm = () => {
         ) : null}
       </div>
 
-      {/* Password */}
       <div>
         <label
           htmlFor="password"
@@ -162,6 +201,7 @@ export const RegisterForm = () => {
           required
           className={`w-full px-4 py-2 rounded-lg border focus:ring-2 dark:bg-gray-700 dark:text-white ${fieldClass('password')}`}
         />
+
         <ul className="mt-2 space-y-1 text-sm">
           <li className={passwordStatus.length ? 'text-green-600' : 'text-gray-500'}>
             {passwordStatus.length ? '✓' : '•'} At least 8 characters
@@ -181,7 +221,6 @@ export const RegisterForm = () => {
         </ul>
       </div>
 
-      {/* Confirm Password */}
       <div>
         <label
           htmlFor="confirmPassword"
@@ -199,7 +238,7 @@ export const RegisterForm = () => {
           required
           className={`w-full px-4 py-2 rounded-lg border focus:ring-2 dark:bg-gray-700 dark:text-white ${fieldClass('confirmPassword')}`}
         />
-        {/* ✅ Show success message only when user has typed something */}
+
         {formData.confirmPassword.length > 0 ? (
           errors.confirmPassword ? (
             <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>
@@ -209,17 +248,16 @@ export const RegisterForm = () => {
         ) : null}
       </div>
 
-      {/* Submit */}
       <button
         type="submit"
-        disabled={!isFormValid}
+        disabled={!isFormValid || loading}
         className={`w-full py-3 rounded-lg text-white font-semibold transition ${
           isFormValid
             ? 'bg-brand-500 hover:bg-brand-600 cursor-pointer'
             : 'bg-gray-400 cursor-not-allowed'
         }`}
       >
-        Sign Up
+        {loading ? 'Creating Account...' : 'Sign Up'}
       </button>
     </form>
   );
