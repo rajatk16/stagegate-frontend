@@ -21,6 +21,8 @@ export const NotFoundPage = () => {
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-3 max-w-md">
           Oops! The page you are looking for does not exist.
+          <br />
+          Let&apos;s get you back on track.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
           <button
