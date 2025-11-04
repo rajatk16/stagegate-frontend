@@ -1,3 +1,5 @@
 export * from './AuthPage';
-export * from './NotFoundPage';
 export * from './LandingPage';
+export * from './NotFoundPage';
+export * from './ResetPassword';
+export * from './ForgotPassword';
