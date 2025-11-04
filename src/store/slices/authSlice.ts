@@ -11,7 +11,7 @@ const initialState: AuthState = {
   uid: null,
   email: null,
   token: null,
-  loading: false,
+  loading: true,
 };
 
 const authSlice = createSlice({
