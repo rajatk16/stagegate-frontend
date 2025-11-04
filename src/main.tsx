@@ -9,6 +9,7 @@ import './main.css';
 import App from './App';
 import { client } from '@/graphql';
 import { persistor, store } from '@/store';
+import { AuthListener } from './components';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -16,6 +17,7 @@ createRoot(document.getElementById('root')!).render(
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <BrowserRouter>
+            <AuthListener />
             <App />
           </BrowserRouter>
         </PersistGate>

@@ -5,4 +5,5 @@ export * from './Header';
 export * from './Features';
 export * from './LoginForm';
 export * from './HowItWorks';
+export * from './AuthListener';
 export * from './RegisterForm';
