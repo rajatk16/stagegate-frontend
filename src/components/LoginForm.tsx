@@ -1,26 +1,27 @@
-import { auth } from '@/libs/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
+import { auth } from '@/libs';
+import { setAuth, setLoading } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 
 export const LoginForm = () => {
+  const dispatch = useAppDispatch();
+  const loading = useAppSelector((state) => state.auth.loading);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    dispatch(setLoading(true));
     setError(null);
-    setSuccessMessage(null);
 
     try {
       const { user } = await signInWithEmailAndPassword(
@@ -28,35 +29,15 @@ export const LoginForm = () => {
         formData.email.trim(),
         formData.password.trim(),
       );
-      console.log('user', user);
 
       const token = await user.getIdToken();
-      console.log('token', token);
-      localStorage.setItem('access_token', token);
 
-      setSuccessMessage(`Login successful! Welcome back, ${user.displayName || user.email}!`);
-      setTimeout(() => navigate('/dashboard'), 1200);
+      dispatch(setAuth({ uid: user.uid, email: user.email ?? '', token }));
+      navigate('/dashboard');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Login error: ', error);
-      let message = 'Failed to login. Please check your credentials and try again.';
-
-      switch (error.code) {
-        case 'auth/user-not-found':
-          message = 'No account found with this email. Please register first.';
-          break;
-        case 'auth/wrong-password':
-          message = 'Invalid password. Please try again.';
-          break;
-        case 'auth/invalid-email':
-          message = 'Invalid email address. Please check your email and try again.';
-          break;
-        case 'auth/too-many-requests':
-          message = 'Too many login attempts. Please try again later.';
-          break;
-      }
-
-      setError(message);
+      setError('Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -67,11 +48,6 @@ export const LoginForm = () => {
       {error && (
         <p className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-2 rounded-md">
           {error}
-        </p>
-      )}
-      {successMessage && (
-        <p className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-sm p-2 rounded-md">
-          {successMessage}
         </p>
       )}
       <div>

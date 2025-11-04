@@ -1,10 +1,19 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useMutation } from '@apollo/client/react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
-import { SIGN_UP_MUTATION } from '@/graphql/mutations';
+import { auth } from '@/libs';
+import { SIGN_UP_MUTATION } from '@/graphql';
+import { setAuth, setLoading } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import type { SignUpInput, SignUpResponse } from '@/types';
 
 export const RegisterForm = () => {
+  const navigate = useNavigate();
+  const loading = useAppSelector((state) => state.auth.loading);
+  const dispatch = useAppDispatch();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,11 +23,11 @@ export const RegisterForm = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [validFields, setValidFields] = useState<Record<string, boolean>>({});
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const [signUp, { loading }] = useMutation<SignUpResponse, { input: SignUpInput }>(
-    SIGN_UP_MUTATION,
-  );
+  const [signUp, { loading: signUpLoading }] = useMutation<
+    SignUpResponse,
+    { input: SignUpInput }
+  >(SIGN_UP_MUTATION);
 
   // password rule checks
   const passwordChecks = {
@@ -83,6 +92,7 @@ export const RegisterForm = () => {
     e.preventDefault();
     if (!isFormValid) return;
 
+    dispatch(setLoading(true));
     try {
       const { data } = await signUp({
         variables: {
@@ -95,9 +105,16 @@ export const RegisterForm = () => {
       });
 
       if (data?.signUp.user) {
-        setSuccessMessage(
-          `Welcome, ${data.signUp.user.name}! 🎉 Your account has been created.`,
+        const { user } = await signInWithEmailAndPassword(
+          auth,
+          formData.email.trim(),
+          formData.password.trim(),
         );
+
+        const token = await user.getIdToken();
+        dispatch(setAuth({ uid: data.signUp.uid, email: data.signUp.email, token }));
+
+        navigate('/dashboard');
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -106,6 +123,8 @@ export const RegisterForm = () => {
         ...prev,
         form: error.message || 'An unexpected error occurred. Please try again.',
       }));
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -129,11 +148,6 @@ export const RegisterForm = () => {
     <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
       {errors.form && (
         <div className="bg-red-50 text-red-600 text-sm p-2 rounded-md">{errors.form}</div>
-      )}
-      {successMessage && (
-        <div className="bg-green-50 text-green-600 text-sm p-2 rounded-md">
-          {successMessage}
-        </div>
       )}
 
       <div>
@@ -250,14 +264,14 @@ export const RegisterForm = () => {
 
       <button
         type="submit"
-        disabled={!isFormValid || loading}
+        disabled={!isFormValid || loading || signUpLoading}
         className={`w-full py-3 rounded-lg text-white font-semibold transition ${
           isFormValid
             ? 'bg-brand-500 hover:bg-brand-600 cursor-pointer'
             : 'bg-gray-400 cursor-not-allowed'
         }`}
       >
-        {loading ? 'Creating Account...' : 'Sign Up'}
+        {loading || signUpLoading ? 'Creating Account...' : 'Sign Up'}
       </button>
     </form>
   );
