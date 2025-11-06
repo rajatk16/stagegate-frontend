@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { Helmet } from 'react-helmet';
 
-import { Footer, Header, LoginForm, RegisterForm } from '@/components';
+import { Footer, LoginForm, RegisterForm } from '@/components';
 
 export const AuthPage = () => {
   return (
@@ -11,7 +11,6 @@ export const AuthPage = () => {
         <meta name="description" content="Login or register to your StageGate account." />
       </Helmet>
 
-      <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center px-4">
         <div className="max-w-6xl mx-auto w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg grid md:grid-cols-2 overflow-hidden">
           <div className="p-10 flex flex-col justify-center boder-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700">

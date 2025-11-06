@@ -1,8 +1,6 @@
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router';
 
-import { Footer, Header } from '@/components';
-
 export const NotFoundPage = () => {
   const navigate = useNavigate();
 
@@ -13,7 +11,6 @@ export const NotFoundPage = () => {
         <meta name="description" content="The page you are looking for does not exist." />
       </Helmet>
 
-      <Header />
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-center px-6">
         <h1 className="text-[8rem] font-bold text-brand-500 leading-none">404</h1>
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-4">
@@ -40,7 +37,6 @@ export const NotFoundPage = () => {
           </Link>
         </div>
       </div>
-      <Footer />
     </>
   );
 };
