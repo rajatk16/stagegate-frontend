@@ -3,12 +3,13 @@ import { Route, Routes } from 'react-router';
 import {
   AuthPage,
   LandingPage,
+  ProfilePage,
   NotFoundPage,
+  DashboardPage,
   ResetPasswordPage,
   ForgotPasswordPage,
 } from '@/pages';
 import { Footer, Header } from '@/components';
-import { DashboardPage } from './pages/DashboardPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />
