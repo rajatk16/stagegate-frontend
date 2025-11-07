@@ -7,7 +7,6 @@ import { auth } from '@/libs';
 import { SIGN_UP_MUTATION } from '@/graphql';
 import { setAuth, setLoading } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/hooks';
-import type { SignUpInput, SignUpResponse } from '@/types';
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
@@ -24,10 +23,7 @@ export const RegisterForm = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [validFields, setValidFields] = useState<Record<string, boolean>>({});
 
-  const [signUp, { loading: signUpLoading }] = useMutation<
-    SignUpResponse,
-    { input: SignUpInput }
-  >(SIGN_UP_MUTATION);
+  const [signUp, { loading: signUpLoading }] = useMutation(SIGN_UP_MUTATION);
 
   // password rule checks
   const passwordChecks = {
