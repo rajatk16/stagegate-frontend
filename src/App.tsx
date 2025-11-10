@@ -6,6 +6,7 @@ import {
   ProfilePage,
   NotFoundPage,
   DashboardPage,
+  EditProfilePage,
   ResetPasswordPage,
   ForgotPasswordPage,
 } from '@/pages';
@@ -22,6 +23,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />

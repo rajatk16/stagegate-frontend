@@ -5,5 +5,7 @@ export * from './Header';
 export * from './Features';
 export * from './LoginForm';
 export * from './HowItWorks';
+export * from './InputField';
 export * from './AuthListener';
 export * from './RegisterForm';
+export * from './EditSocialMedia';
