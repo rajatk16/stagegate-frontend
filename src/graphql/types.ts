@@ -143,6 +143,35 @@ export type SignUpMutation = {
   };
 };
 
+export type UpdateUserMutationVariables = Exact<{
+  input: UpdateUserInput;
+}>;
+
+export type UpdateUserMutation = {
+  updateUser: {
+    __typename: 'User';
+    bio: string | null;
+    createdAt: unknown;
+    email: string;
+    id: string;
+    name: string;
+    updatedAt: unknown;
+    contactInfo: {
+      __typename: 'ContactInfo';
+      phone: string | null;
+      secondaryEmail: string | null;
+      website: string | null;
+    } | null;
+    location: { __typename: 'Location'; city: string | null; country: string | null } | null;
+    occupation: {
+      __typename: 'Occupation';
+      company: string | null;
+      title: string | null;
+    } | null;
+    socialMedia: Array<{ __typename: 'SocialMedia'; handle: string; platform: string }> | null;
+  };
+};
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MeQuery = {

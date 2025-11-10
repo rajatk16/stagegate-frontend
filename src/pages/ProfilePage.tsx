@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { useQuery } from '@apollo/client/react';
 import { Building2, Loader2, Mail, MapPin, Pencil, Phone, User } from 'lucide-react';
 
@@ -7,7 +7,6 @@ import { ME } from '@/graphql';
 import { useAppSelector } from '@/hooks';
 
 export const ProfilePage = () => {
-  const navigate = useNavigate();
   const { token } = useAppSelector((state) => state.auth);
   const { data, loading, error } = useQuery(ME, {
     context: {
@@ -55,13 +54,13 @@ export const ProfilePage = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => navigate('edit-profile')}
+            <Link
+              to="/edit-profile"
               className="mt-6 sm:mt-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-medium shadow-sm transition-all cursor-pointer"
             >
               <Pencil className="w-4 h-4" />
               Edit Profile
-            </button>
+            </Link>
           </div>
 
           {loading && (
@@ -73,7 +72,7 @@ export const ProfilePage = () => {
             </div>
           )}
 
-          {(error || !user) && (
+          {!loading && (error || !user) && (
             <div className="text-center text-red-500 py-200">
               <p>Failed to load profile. Please try again later.</p>
             </div>
