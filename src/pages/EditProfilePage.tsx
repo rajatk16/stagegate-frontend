@@ -1,17 +1,25 @@
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router';
-import { useQuery } from '@apollo/client/react';
-import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client/react';
 
-import { ME } from '@/graphql';
 import { useAppSelector } from '@/hooks';
 import { EditSocialMedia, InputField } from '@/components';
+import { ME, UPDATE_USER, type UpdateUserInput } from '@/graphql';
 
 export const EditProfilePage = () => {
   const navigate = useNavigate();
   const { token } = useAppSelector((state) => state.auth);
   const { data, loading } = useQuery(ME, {
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  });
+
+  const [updateUser] = useMutation(UPDATE_USER, {
     context: {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -62,6 +70,8 @@ export const EditProfilePage = () => {
 
   const user = data?.me;
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     bio: '',
@@ -104,11 +114,55 @@ export const EditProfilePage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setFormError(null);
+    setNameError(null);
+
+    if (!formData.name.trim()) {
+      setNameError('Name is required.');
+      return;
+    }
+
     setSaving(true);
 
     try {
-      // TODO: call mutation to update profile
-      console.log('Saving form data', formData);
+      const input: UpdateUserInput = {
+        name: formData.name.trim(),
+        bio: formData.bio.trim() || null,
+        location: {
+          city: formData.city.trim() || null,
+          country: formData.country.trim() || null,
+        },
+        contactInfo: {
+          phone: formData.phone.trim() || null,
+          secondaryEmail: formData.secondaryEmail.trim() || null,
+          website: formData.website.trim() || null,
+        },
+        occupation: {
+          company: formData.company.trim() || null,
+          title: formData.title.trim() || null,
+        },
+        socialMedia: formData.socialMedia
+          .filter((s) => s.handle.trim() !== '')
+          .map((s) => ({
+            handle: s.handle.trim(),
+            platform: s.platform,
+          })),
+      };
+
+      const { data } = await updateUser({
+        variables: {
+          input,
+        },
+      });
+
+      if (data?.updateUser) {
+        navigate('/profile');
+      } else {
+        setFormError('Something went wrong. Please try again.');
+      }
+    } catch (error: unknown) {
+      setFormError((error as Error).message || 'Something went wrong. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -154,6 +208,7 @@ export const EditProfilePage = () => {
                 onChange={handleChange}
                 required
               />
+              {nameError && <p className="text-sm text-red-500 mt-1">{nameError}</p>}
               <InputField
                 id="bio"
                 textArea
@@ -162,6 +217,7 @@ export const EditProfilePage = () => {
                 value={formData.bio}
                 onChange={handleChange}
               />
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <InputField
                   id="city"
@@ -227,7 +283,7 @@ export const EditProfilePage = () => {
               <div className="pt-4">
                 <button
                   type="submit"
-                  disabled={saving}
+                  disabled={saving || !formData.name.trim()}
                   className={`w-full px-6 py-2.5 font-semibold rounded-lg text-white transition-all ${
                     saving
                       ? 'bg-brand-400 cursor-not-allowed'
@@ -243,6 +299,7 @@ export const EditProfilePage = () => {
                     'Save Changes'
                   )}
                 </button>
+                {formError && <p className="text-sm text-red-500 mt-3">{formError}</p>}
               </div>
             </form>
           )}

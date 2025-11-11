@@ -26,5 +26,6 @@ export const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export * from './mutations';
+export * from './types';
 export * from './queries';
+export * from './mutations';
