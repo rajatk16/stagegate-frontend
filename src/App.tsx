@@ -1,5 +1,7 @@
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 
+import { useAppSelector } from './hooks';
+import { Footer, Header } from '@/components';
 import {
   AuthPage,
   LandingPage,
@@ -10,23 +12,108 @@ import {
   ResetPasswordPage,
   ForgotPasswordPage,
 } from '@/pages';
-import { Footer, Header } from '@/components';
+
+const MainLayout = ({ children }: { children: React.ReactNode }) => (
+  <>
+    <Header />
+    {children}
+    <Footer />
+  </>
+);
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { uid } = useAppSelector((state) => state.auth);
+  return uid ? <>{children}</> : <Navigate to="/auth" replace />;
+};
+
+const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+  const { uid } = useAppSelector((state) => state.auth);
+  return uid ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+};
 
 function App() {
   return (
     <>
-      <Header />
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/edit-profile" element={<EditProfilePage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route
+          path="/"
+          element={
+            <AuthRoute>
+              <MainLayout>
+                <LandingPage />
+              </MainLayout>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/auth"
+          element={
+            <AuthRoute>
+              <MainLayout>
+                <AuthPage />
+              </MainLayout>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <DashboardPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <AuthRoute>
+              <MainLayout>
+                <ResetPasswordPage />
+              </MainLayout>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <AuthRoute>
+              <MainLayout>
+                <ForgotPasswordPage />
+              </MainLayout>
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <ProfilePage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <EditProfilePage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <MainLayout>
+              <NotFoundPage />
+            </MainLayout>
+          }
+        />
       </Routes>
-      <Footer />
     </>
   );
 }

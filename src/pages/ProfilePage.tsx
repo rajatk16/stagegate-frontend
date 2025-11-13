@@ -1,5 +1,6 @@
-import { Helmet } from 'react-helmet';
 import { Link } from 'react-router';
+import { Helmet } from 'react-helmet';
+import { motion } from 'framer-motion';
 import { useQuery } from '@apollo/client/react';
 import {
   Building2,
@@ -17,12 +18,34 @@ import { ME } from '@/graphql';
 import { useAppSelector } from '@/hooks';
 import { SOCIAL_PLATFORMS } from '@/utils';
 
+const InfoCard = ({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 15 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4 }}
+    className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 
+               bg-gray-50/70 dark:bg-gray-800/40 hover:shadow-sm transition-all"
+  >
+    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+      <Icon className="w-5 h-5 text-brand-600" />
+      {title}
+    </h3>
+    {children}
+  </motion.div>
+);
+
 export const ProfilePage = () => {
   const { token } = useAppSelector((state) => state.auth);
   const { data, loading, error } = useQuery(ME, {
-    context: {
-      headers: { Authorization: `Bearer ${token}` },
-    },
+    context: { headers: { Authorization: `Bearer ${token}` } },
   });
 
   const user = data?.me;
@@ -45,10 +68,13 @@ export const ProfilePage = () => {
     <>
       <Helmet>
         <title>StageGate - Profile</title>
-        <meta name="description" content="Your profile page" />
+        <meta
+          name="description"
+          content="View and manage your StageGate account information."
+        />
       </Helmet>
 
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
         <div className="max-w-5xl mx-auto px-6 py-10">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10">
@@ -59,19 +85,20 @@ export const ProfilePage = () => {
               <div>
                 <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Profile</h1>
                 <p className="text-gray-600 dark:text-gray-400">
-                  View and manage your StageGate account information.
+                  Manage your StageGate account details.
                 </p>
               </div>
             </div>
 
             <Link
-              to="/edit-profile"
-              className="mt-6 sm:mt-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg 
-                         bg-brand-500 hover:bg-brand-600 text-white font-medium shadow-sm 
-                         transition-all focus:outline-none focus:ring-2 focus:ring-brand-500"
+              to={!loading && !error && user ? '/edit-profile' : '#'}
+              onClick={(e) => {
+                if (loading || error || !user) e.preventDefault();
+              }}
+              className={`mt-6 sm:mt-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-sm transition-all focus:outline-none focus:ring-2 ${loading || error || !user ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed text-gray-200 dark:text-gray-400' : 'bg-brand-500 hover:bg-brand-600 text-white focus:ring-brand-500'}`}
             >
               <Pencil className="w-4 h-4" />
-              Edit Profile
+              {loading ? 'Loading...' : error ? 'Unavailable' : 'Edit Profile'}
             </Link>
           </div>
 
@@ -87,18 +114,27 @@ export const ProfilePage = () => {
 
           {/* Error */}
           {!loading && (error || !user) && (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-24 text-center"
+            >
               <AlertCircle className="w-8 h-8 text-red-500 mb-3" />
               <p className="text-red-500 font-medium mb-1">Failed to load profile.</p>
               <p className="text-gray-600 dark:text-gray-400">
                 Please refresh the page or try again later.
               </p>
-            </div>
+            </motion.div>
           )}
 
           {/* Content */}
           {user && !loading && !error && (
-            <div className="bg-white dark:bg-gray-800 shadow-sm rounded-2xl p-8 transition-all">
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="bg-white dark:bg-gray-800 shadow-sm rounded-2xl p-8 transition-all"
+            >
               {/* Basic Info */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
                 <div>
@@ -122,17 +158,19 @@ export const ProfilePage = () => {
                   Bio
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {formatField(user.bio)}
+                  {user.bio?.trim() ? (
+                    user.bio
+                  ) : (
+                    <span className="text-gray-500 dark:text-gray-400 italic">
+                      No bio provided yet.
+                    </span>
+                  )}
                 </p>
               </div>
 
               {/* Occupation & Contact */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/40">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                    <Building2 className="w-5 h-5" />
-                    Occupation
-                  </h3>
+                <InfoCard title="Occupation" icon={Building2}>
                   <p className="text-gray-700 dark:text-gray-300">
                     <span className="font-medium">Title:</span>{' '}
                     {formatField(user.occupation?.title)}
@@ -141,13 +179,9 @@ export const ProfilePage = () => {
                     <span className="font-medium">Company:</span>{' '}
                     {formatField(user.occupation?.company)}
                   </p>
-                </div>
+                </InfoCard>
 
-                <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/40">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                    <Phone className="w-5 h-5 text-brand-600" />
-                    Contact Info
-                  </h3>
+                <InfoCard title="Contact Info" icon={Phone}>
                   <p className="text-gray-700 dark:text-gray-300">
                     <span className="font-medium">Phone:</span>{' '}
                     {formatField(user.contactInfo?.phone)}
@@ -175,17 +209,11 @@ export const ProfilePage = () => {
                     <span className="font-medium">Secondary Email:</span>{' '}
                     {formatField(user.contactInfo?.secondaryEmail)}
                   </p>
-                </div>
+                </InfoCard>
               </div>
 
               {/* Social Media */}
-              {/* Social Media */}
-              <div className="mt-8 p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/40">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-brand-600" />
-                  Social Media
-                </h3>
-
+              <InfoCard title="Social Media" icon={Globe}>
                 {user.socialMedia && user.socialMedia.length > 0 ? (
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {user.socialMedia.map((s, idx) => {
@@ -197,7 +225,8 @@ export const ProfilePage = () => {
                       return (
                         <li
                           key={idx}
-                          className="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800/70 hover:shadow-sm transition-all"
+                          className="flex items-center justify-between p-3 rounded-lg border border-gray-100 
+                                     dark:border-gray-700 bg-white dark:bg-gray-800/70 hover:shadow-sm transition-all"
                         >
                           <div className="flex items-center gap-3 truncate">
                             <Icon className="w-5 h-5 shrink-0" color={`#${color}`} />
@@ -211,7 +240,7 @@ export const ProfilePage = () => {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-brand-600 hover:underline font-medium truncate max-w-[60%] text-right"
-                              title={s.handle}
+                              title={`${platform?.name}: ${s.handle}`}
                             >
                               {s.handle}
                             </a>
@@ -229,11 +258,11 @@ export const ProfilePage = () => {
                     No social media accounts linked yet.
                   </p>
                 )}
-              </div>
-            </div>
+              </InfoCard>
+            </motion.section>
           )}
         </div>
-      </div>
+      </main>
     </>
   );
 };

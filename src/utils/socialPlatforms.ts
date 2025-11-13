@@ -1,7 +1,6 @@
 import {
   SiX,
   SiGithub,
-  SiReddit,
   SiTiktok,
   SiTwitch,
   SiYoutube,
@@ -60,12 +59,5 @@ export const SOCIAL_PLATFORMS = [
     icon: SiTwitch,
     prefix: 'https://twitch.tv/',
     color: '9146FF',
-  },
-  {
-    id: 'reddit',
-    name: 'Reddit',
-    icon: SiReddit,
-    prefix: 'https://reddit.com/',
-    color: 'FF4500',
   },
 ];
