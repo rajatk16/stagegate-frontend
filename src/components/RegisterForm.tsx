@@ -1,17 +1,21 @@
 import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { SIGN_UP_MUTATION } from '@/graphql';
 import { useMutation } from '@apollo/client/react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 import { auth } from '@/libs';
-import { SIGN_UP_MUTATION } from '@/graphql';
+import { InputField } from '@/components';
 import { setAuth, setLoading } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
-  const loading = useAppSelector((state) => state.auth.loading);
   const dispatch = useAppDispatch();
+  const loading = useAppSelector((state) => state.auth.loading);
+
+  const [signUp, { loading: signUpLoading }] = useMutation(SIGN_UP_MUTATION);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -21,11 +25,7 @@ export const RegisterForm = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [validFields, setValidFields] = useState<Record<string, boolean>>({});
 
-  const [signUp, { loading: signUpLoading }] = useMutation(SIGN_UP_MUTATION);
-
-  // password rule checks
   const passwordChecks = {
     length: (v: string) => v.length >= 8,
     upper: (v: string) => /[A-Z]/.test(v),
@@ -34,103 +34,74 @@ export const RegisterForm = () => {
     special: (v: string) => /[^A-Za-z0-9]/.test(v),
   };
 
-  const validateField = (name: string, value: string) => {
-    let error = '';
-
-    if (name === 'name' && !value.trim()) error = 'Full name is required.';
-    if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-      error = 'Enter a valid email address.';
-
-    if (name === 'password') {
-      const fails = Object.entries(passwordChecks)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .filter(([_, fn]) => !fn(value))
-        .map(([rule]) => rule);
-      if (fails.length)
-        error =
-          'Password must include: ' + fails.join(', ').replace(/length/, '8+ characters') + '.';
-    }
-
-    if (name === 'confirmPassword') {
-      // ✅ Only check if confirmPassword field has a value
-      if (value.length > 0) {
-        if (value !== formData.password) error = 'Passwords do not match.';
-      } else {
-        error = '';
-      }
-    }
-
-    if (error) {
-      setErrors((prev) => ({ ...prev, [name]: error }));
-      setValidFields((prev) => ({ ...prev, [name]: false }));
-    } else {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-      setValidFields((prev) => ({ ...prev, [name]: true }));
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    validateField(name, value);
-
-    // ✅ Revalidate confirmPassword only if it already has a value
-    if (name === 'password' && formData.confirmPassword.trim().length > 0) {
-      validateField('confirmPassword', formData.confirmPassword);
-    }
   };
 
-  const isFormValid =
-    Object.values(validFields).every((v) => v === true) &&
-    Object.keys(validFields).length === Object.keys(formData).length;
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) newErrors.name = 'Name is required.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      newErrors.email = 'Enter a valid email address.';
+
+    const fails = Object.entries(passwordChecks)
+      .filter(([, fn]) => !fn(formData.password))
+      .map(([rule]) => rule);
+
+    if (fails.length)
+      newErrors.password =
+        `Password must include: ` + fails.join(', ').replace(/length/, '8+ characters') + '.';
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password.';
+    } else if (formData.confirmPassword !== formData.password) {
+      newErrors.confirmPassword = 'Passwords do not match.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid) return;
+
+    if (!validateForm()) return;
 
     dispatch(setLoading(true));
+
     try {
       const { data } = await signUp({
         variables: {
           input: {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            password: formData.password.trim(),
           },
         },
       });
 
-      if (data?.signUp.user) {
+      if (data?.signUp?.user) {
         const { user } = await signInWithEmailAndPassword(
           auth,
           formData.email.trim(),
           formData.password.trim(),
         );
-
         const token = await user.getIdToken();
-        dispatch(setAuth({ uid: data.signUp.uid, email: data.signUp.email, token }));
-
-        navigate('/dashboard');
+        dispatch(setAuth({ uid: user.uid, email: user.email ?? '', token }));
+        navigate('/edit-profile');
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error('Sign up error:', error);
-      setErrors((prev) => ({
-        ...prev,
-        form: error.message || 'An unexpected error occurred. Please try again.',
-      }));
+    } catch (error: unknown) {
+      console.error('Sign up error: ', error);
+      setErrors({
+        form: (error as Error).message || 'Something went wrong. Please try again.',
+      });
     } finally {
       dispatch(setLoading(false));
     }
   };
 
-  const fieldClass = (field: string) => {
-    if (errors[field]) return 'border-red-500 focus:ring-red-500';
-    if (validFields[field]) return 'border-green-500 focus:ring-green-500';
-    return 'border-gray-300 dark:border-gray-600 focus:ring-brand-500';
-  };
-
-  // For password checklist
   const password = formData.password;
   const passwordStatus = {
     length: passwordChecks.length(password),
@@ -140,78 +111,56 @@ export const RegisterForm = () => {
     special: passwordChecks.special(password),
   };
 
+  const isLoading = loading || signUpLoading;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-sm"
+      autoComplete="off"
+    >
       {errors.form && (
-        <div className="bg-red-50 text-red-600 text-sm p-2 rounded-md">{errors.form}</div>
+        <div className="flex items-center justify-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm py-2 px-3 rounded-md border border-red-100 dark:border-red-800">
+          {errors.form}
+        </div>
       )}
 
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
-          Full Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          autoComplete="off"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          className={`w-full px-4 py-2 rounded-lg border focus:ring-2 dark:bg-gray-700 dark:text-white ${fieldClass('name')}`}
-        />
-        {errors.name ? (
-          <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-        ) : validFields.name ? (
-          <p className="mt-1 text-sm text-green-600">✓ Looks good!</p>
-        ) : null}
-      </div>
+      <InputField
+        id="name"
+        label="Full Name"
+        value={formData.name}
+        onChange={handleChange}
+        required
+        error={errors.name}
+        placeholder="John Doe"
+      />
 
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          autoComplete="new-email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          className={`w-full px-4 py-2 rounded-lg border focus:ring-2 dark:bg-gray-700 dark:text-white ${fieldClass('email')}`}
-        />
-        {errors.email ? (
-          <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-        ) : validFields.email ? (
-          <p className="mt-1 text-sm text-green-600">✓ Valid email.</p>
-        ) : null}
-      </div>
+      <InputField
+        id="email"
+        label="Email"
+        type="email"
+        autoComplete="new-email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+        error={errors.email}
+        placeholder="you@example.com"
+      />
 
-      <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
-          Password
-        </label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          autoComplete="new-password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          className={`w-full px-4 py-2 rounded-lg border focus:ring-2 dark:bg-gray-700 dark:text-white ${fieldClass('password')}`}
-        />
+      <InputField
+        id="password"
+        label="Password"
+        type="password"
+        value={formData.password}
+        onChange={handleChange}
+        required
+        error={errors.password}
+        placeholder="••••••••"
+        autoComplete="new-password"
+      />
 
+      {/* Password checklist */}
+      {formData.password.length > 0 && (
         <ul className="mt-2 space-y-1 text-sm">
           <li className={passwordStatus.length ? 'text-green-600' : 'text-gray-500'}>
             {passwordStatus.length ? '✓' : '•'} At least 8 characters
@@ -229,45 +178,37 @@ export const RegisterForm = () => {
             {passwordStatus.special ? '✓' : '•'} One special character
           </li>
         </ul>
-      </div>
+      )}
 
-      <div>
-        <label
-          htmlFor="confirmPassword"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
-          Confirm Password
-        </label>
-        <input
-          type="password"
-          id="confirmPassword"
-          name="confirmPassword"
-          autoComplete="new-password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          required
-          className={`w-full px-4 py-2 rounded-lg border focus:ring-2 dark:bg-gray-700 dark:text-white ${fieldClass('confirmPassword')}`}
-        />
-
-        {formData.confirmPassword.length > 0 ? (
-          errors.confirmPassword ? (
-            <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>
-          ) : validFields.confirmPassword ? (
-            <p className="mt-1 text-sm text-green-600">✓ Passwords match!</p>
-          ) : null
-        ) : null}
-      </div>
+      <InputField
+        id="confirmPassword"
+        label="Confirm Password"
+        type="password"
+        value={formData.confirmPassword}
+        onChange={handleChange}
+        required
+        error={errors.confirmPassword}
+        placeholder="••••••••"
+        autoComplete="new-password"
+      />
 
       <button
         type="submit"
-        disabled={!isFormValid || loading || signUpLoading}
-        className={`w-full py-3 rounded-lg text-white font-semibold transition ${
-          isFormValid
-            ? 'bg-brand-500 hover:bg-brand-600 cursor-pointer'
-            : 'bg-gray-400 cursor-not-allowed'
+        disabled={isLoading}
+        className={`w-full py-3 flex justify-center items-center gap-2 font-semibold rounded-lg text-white transition-all ${
+          isLoading
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-brand-500 hover:bg-brand-600 focus:ring-2 focus:ring-brand-400'
         }`}
       >
-        {loading || signUpLoading ? 'Creating Account...' : 'Sign Up'}
+        {isLoading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Creating Account...
+          </>
+        ) : (
+          'Sign Up'
+        )}
       </button>
     </form>
   );
