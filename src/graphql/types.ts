@@ -62,11 +62,16 @@ export type LocationInput = {
 export type Mutation = {
   __typename: 'Mutation';
   signUp: AuthPayload;
+  updateProfilePicture: User;
   updateUser: User;
 };
 
 export type MutationSignUpArgs = {
   input: SignUpInput;
+};
+
+export type MutationUpdateProfilePictureArgs = {
+  url: Scalars['String']['input'];
 };
 
 export type MutationUpdateUserArgs = {
@@ -126,6 +131,7 @@ export type User = {
   location: Maybe<Location>;
   name: Scalars['String']['output'];
   occupation: Maybe<Occupation>;
+  profilePicture: Maybe<Scalars['String']['output']>;
   socialMedia: Maybe<Array<SocialMedia>>;
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -188,6 +194,7 @@ export type MeQuery = {
     email: string;
     id: string;
     name: string;
+    profilePicture: string | null;
     contactInfo: {
       __typename: 'ContactInfo';
       phone: string | null;
