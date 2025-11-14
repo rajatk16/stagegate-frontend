@@ -172,6 +172,12 @@ export type UpdateUserMutation = {
   };
 };
 
+export type AuthStatusQueryVariables = Exact<{ [key: string]: never }>;
+
+export type AuthStatusQuery = {
+  authStatus: { __typename: 'AuthStatus'; emailVerified: boolean } | null;
+};
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MeQuery = {
