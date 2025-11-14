@@ -26,6 +26,7 @@ export const ME: TypedDocumentNode<MeQuery, MeQueryVariables> = gql`
         handle
         platform
       }
+      profilePicture
     }
   }
 `;
