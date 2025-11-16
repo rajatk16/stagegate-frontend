@@ -149,6 +149,14 @@ export type SignUpMutation = {
   };
 };
 
+export type UpdateProfilePictureMutationVariables = Exact<{
+  url: Scalars['String']['input'];
+}>;
+
+export type UpdateProfilePictureMutation = {
+  updateProfilePicture: { __typename: 'User'; id: string; profilePicture: string | null };
+};
+
 export type UpdateUserMutationVariables = Exact<{
   input: UpdateUserInput;
 }>;

@@ -6,3 +6,4 @@ export * from './DashboardPage';
 export * from './EditProfilePage';
 export * from './ResetPasswordPage';
 export * from './ForgotPasswordPage';
+export * from './EditProfilePicturePage';

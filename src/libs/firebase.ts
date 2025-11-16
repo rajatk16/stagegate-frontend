@@ -1,5 +1,6 @@
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import { initializeApp, type FirebaseOptions } from 'firebase/app';
 
 const firebaseConfig: FirebaseOptions = {
@@ -15,6 +16,7 @@ const firebaseConfig: FirebaseOptions = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 export const db = getFirestore(app, import.meta.env.VITE_FIREBASE_DATABASE_ID);
 
 export default app;

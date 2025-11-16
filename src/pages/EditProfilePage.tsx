@@ -1,8 +1,8 @@
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
+import { ArrowLeft, Camera, Loader2, Trash2 } from 'lucide-react';
 
 import { useAppSelector } from '@/hooks';
 import { EditSocialMedia, InputField } from '@/components';
@@ -177,13 +177,13 @@ export const EditProfilePage = () => {
 
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
         <div className="max-w-3xl mx-auto px-6 py-10">
-          <button
-            onClick={() => navigate(-1)}
+          <Link
+            to="/profile"
             className="flex items-center text-brand-600 hover:underline mb-6 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Profile
-          </button>
+          </Link>
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
             Edit Profile
           </h1>
@@ -200,6 +200,41 @@ export const EditProfilePage = () => {
               onSubmit={handleSubmit}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-6"
             >
+              <div className="flex flex-col items-center mb-8">
+                <div className="relative">
+                  <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 shadow">
+                    {user?.profilePicture ? (
+                      <img
+                        src={user.profilePicture}
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-3xl font-semibold text-white bg-brand-500">
+                        {formData.name?.charAt(0).toUpperCase() ?? 'U'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-3">
+                  <Link
+                    to="/edit-profile-picture"
+                    className="px-4 py-2 text-sm rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-medium transition cursor-pointer flex items-center justify-center"
+                  >
+                    <Camera className="w-4 h-4 mr-2" />
+                    Change Profile Picture
+                  </Link>
+                  {user?.profilePicture && (
+                    <button
+                      type="button"
+                      className="px-4 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition cursor-pointer flex items-center justify-center"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Remove Profile Picture
+                    </button>
+                  )}
+                </div>
+              </div>
               <InputField
                 id="name"
                 label="Name"

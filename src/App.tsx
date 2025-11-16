@@ -11,6 +11,7 @@ import {
   EditProfilePage,
   ResetPasswordPage,
   ForgotPasswordPage,
+  EditProfilePicturePage,
 } from '@/pages';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => (
@@ -101,6 +102,16 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <EditProfilePage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-profile-picture"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <EditProfilePicturePage />
               </MainLayout>
             </ProtectedRoute>
           }
