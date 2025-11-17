@@ -61,6 +61,7 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename: 'Mutation';
+  deleteProfilePicture: User;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
@@ -134,6 +135,17 @@ export type User = {
   profilePicture: Maybe<Scalars['String']['output']>;
   socialMedia: Maybe<Array<SocialMedia>>;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type DeleteProfilePictureMutationVariables = Exact<{ [key: string]: never }>;
+
+export type DeleteProfilePictureMutation = {
+  deleteProfilePicture: {
+    __typename: 'User';
+    name: string;
+    email: string;
+    profilePicture: string | null;
+  };
 };
 
 export type SignUpMutationVariables = Exact<{
