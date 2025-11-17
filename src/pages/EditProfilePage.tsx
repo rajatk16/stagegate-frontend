@@ -1,17 +1,22 @@
 import { Helmet } from 'react-helmet';
+import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { ArrowLeft, Camera, Loader2, Trash2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Camera, Loader2, Trash2 } from 'lucide-react';
 
 import { useAppSelector } from '@/hooks';
 import { EditSocialMedia, InputField } from '@/components';
-import { ME, UPDATE_USER, type UpdateUserInput } from '@/graphql';
+import { ME, UPDATE_USER, DELETE_PROFILE_PICTURE, type UpdateUserInput } from '@/graphql';
 
 export const EditProfilePage = () => {
   const navigate = useNavigate();
   const { token } = useAppSelector((state) => state.auth);
-  const { data, loading } = useQuery(ME, {
+  const {
+    data,
+    loading,
+    error: meError,
+  } = useQuery(ME, {
     context: {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -25,6 +30,15 @@ export const EditProfilePage = () => {
         Authorization: `Bearer ${token}`,
       },
     },
+  });
+
+  const [deleteProfilePicture] = useMutation(DELETE_PROFILE_PICTURE, {
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    refetchQueries: [ME],
   });
 
   const initialSocialMedia = useMemo(() => {
@@ -188,14 +202,30 @@ export const EditProfilePage = () => {
             Edit Profile
           </h1>
 
-          {loading ? (
+          {loading && (
             <div className="flex justify-center items-center py-24">
               <Loader2 className="w-6 h-6 text-brand-500 animate-spin" />
               <span className="ml-2 text-gray-600 dark:text-gray-300">
                 Loading your profile...
               </span>
             </div>
-          ) : (
+          )}
+
+          {!loading && meError && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col justify-center items-center py-24"
+            >
+              <AlertCircle className="w-8 h-8 text-red-500 mb-3" />
+              <p className="text-red-500 font-medium mb-1">Failed to load profile.</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Please refresh the page or try again later.
+              </p>
+            </motion.div>
+          )}
+
+          {!loading && !meError && (
             <form
               onSubmit={handleSubmit}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-6"
@@ -227,6 +257,7 @@ export const EditProfilePage = () => {
                   {user?.profilePicture && (
                     <button
                       type="button"
+                      onClick={() => deleteProfilePicture()}
                       className="px-4 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition cursor-pointer flex items-center justify-center"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
