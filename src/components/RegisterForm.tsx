@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { SIGN_UP_MUTATION } from '@/graphql';
 import { useMutation } from '@apollo/client/react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 import { auth } from '@/libs';
 import { InputField } from '@/components';
+import { SIGN_UP_MUTATION } from '@/graphql';
 import { setAuth, setLoading } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 
@@ -159,7 +159,6 @@ export const RegisterForm = () => {
         autoComplete="new-password"
       />
 
-      {/* Password checklist */}
       {formData.password.length > 0 && (
         <ul className="mt-2 space-y-1 text-sm">
           <li className={passwordStatus.length ? 'text-green-600' : 'text-gray-500'}>

@@ -211,6 +211,7 @@ export type MeQuery = {
     __typename: 'User';
     bio: string | null;
     createdAt: unknown;
+    updatedAt: unknown;
     email: string;
     id: string;
     name: string;
