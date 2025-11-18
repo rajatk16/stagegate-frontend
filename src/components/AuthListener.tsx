@@ -1,12 +1,18 @@
 import { useEffect } from 'react';
+import { useLazyQuery } from '@apollo/client/react';
 import { getIdTokenResult, onIdTokenChanged, type User } from 'firebase/auth';
 
 import { auth } from '@/libs';
+import { ME } from '@/graphql';
 import { useAppDispatch } from '@/hooks';
-import { clearAuth, setAuth, setLoading } from '@/store';
+import { clearAuth, setAuth, setLoading, setUser, clearUser } from '@/store';
 
 export const AuthListener = () => {
   const dispatch = useAppDispatch();
+
+  const [fetchMe] = useLazyQuery(ME, {
+    fetchPolicy: 'network-only',
+  });
 
   useEffect(() => {
     let refreshTimer: number | undefined;
@@ -50,12 +56,20 @@ export const AuthListener = () => {
               token,
             }),
           );
+
+          const result = await fetchMe();
+
+          if (result.data?.me) {
+            dispatch(setUser(result.data.me));
+          }
+
           scheduleRefresh(user);
         } catch (error) {
           console.error('Failed to get token on id change: ', error);
         }
       } else {
         dispatch(clearAuth());
+        dispatch(clearUser());
         if (refreshTimer) {
           window.clearTimeout(refreshTimer);
           refreshTimer = undefined;
@@ -95,7 +109,7 @@ export const AuthListener = () => {
         window.clearTimeout(refreshTimer);
       }
     };
-  }, [dispatch]);
+  }, [dispatch, fetchMe]);
 
   return null;
 };

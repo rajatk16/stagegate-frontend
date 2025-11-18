@@ -1,4 +1,4 @@
-import { auth } from '@/libs';
+import { store } from '@/store';
 import { from } from '@apollo/client';
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
@@ -10,8 +10,7 @@ const httpLink = new HttpLink({
 });
 
 const authLink = setContext(async (_, { headers }) => {
-  const user = auth.currentUser;
-  const token = user ? await user.getIdToken() : null;
+  const token = store.getState().auth.token;
 
   return {
     headers: {

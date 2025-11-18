@@ -12,7 +12,7 @@ export const Hero = () => (
         transition={{ duration: 0.6, ease: 'easeOut' }}
         className="text-5xl sm:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight"
       >
-        Streaming Your{' '}
+        Streamline Your{' '}
         <span className="text-transparent bg-clip-text bg-linear-to-r from-brand-500 to-brand-600">
           Proposal Reviews
         </span>

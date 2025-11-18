@@ -9,35 +9,38 @@ import { useAppSelector } from '@/hooks';
 export const Header = () => {
   const navigate = useNavigate();
   const { uid, email } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.user);
 
-  const [, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handlePointer = (e: PointerEvent) => {
-      if (e.pointerType === 'touch') setIsMenuOpen(false);
-    };
-    window.addEventListener('pointerdown', handlePointer);
-    return () => window.removeEventListener('pointerdown', handlePointer);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+    const handler = (e: MouseEvent) => {
+      if (!dropdownRef.current?.contains(e.target as Node)) {
         setIsDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsDropdownOpen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
   }, []);
 
   const handleLogout = useCallback(async () => {
     await logout(navigate);
   }, [navigate]);
 
+  const avatarLetter =
+    user?.name?.charAt(0).toUpperCase() || email?.charAt(0).toUpperCase() || 'U';
+
   return (
-    <header className="w-full sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+    <header className="w-full sticky top-0 z-50 bg-white/80 dark:bg-gray-900 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
         <Link
           to="/"
@@ -46,24 +49,41 @@ export const Header = () => {
           StageGate
         </Link>
 
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center relative">
           {!uid ? (
-            <Link
-              to="/auth"
-              className="px-4 py-2 text-sm font-medium rounded-md bg-brand-500 text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-400 transition"
-            >
-              Login / Register
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="px-6 py-2 text-sm font-semibold rounded-full bg-brand-600 text-white shadow-sm hover:bg-brand-700 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-brand-400 transition-all duration-200"
+              >
+                Login
+              </Link>
+
+              <Link
+                to="/register"
+                className="px-6 py-2 text-sm font-semibold rounded-full border-2 border-brand-600 text-brand-600 hover:bg-brand-600 hover:text-white active:scale-95 focus:outline-none focus:ring-2 focus:ring-brand-400 transition-all duration-200"
+              >
+                Register
+              </Link>
+            </div>
           ) : (
             <div ref={dropdownRef} className="relative">
               <button
                 onClick={() => setIsDropdownOpen((prev) => !prev)}
-                className="flex items-center gap-2 select-none rounded-lg px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
                 aria-haspopup="menu"
                 aria-expanded={isDropdownOpen}
+                className="flex items-center gap-2 select-none rounded-lg px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
               >
-                <div className="w-8 h-9 rounded-full bg-brand-500 flex items-center justify-center text-white font-semibold">
-                  {email?.charAt(0).toUpperCase() || 'U'}
+                <div className="w-9 h-9 rounded-full bg-brand-500 flex items-center justify-center text-white font-semibold">
+                  {user?.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt={user.name}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    avatarLetter
+                  )}
                 </div>
                 <Menu
                   className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}

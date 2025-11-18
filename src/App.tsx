@@ -1,12 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router';
 
-import { useAppSelector } from './hooks';
+import { useAppSelector } from '@/hooks';
 import { Footer, Header } from '@/components';
 import {
-  AuthPage,
+  LoginPage,
   LandingPage,
   ProfilePage,
   NotFoundPage,
+  RegisterPage,
   DashboardPage,
   EditProfilePage,
   ResetPasswordPage,
@@ -39,19 +40,27 @@ function App() {
         <Route
           path="/"
           element={
+            <MainLayout>
+              <LandingPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/register"
+          element={
             <AuthRoute>
               <MainLayout>
-                <LandingPage />
+                <RegisterPage />
               </MainLayout>
             </AuthRoute>
           }
         />
         <Route
-          path="/auth"
+          path="/login"
           element={
             <AuthRoute>
               <MainLayout>
-                <AuthPage />
+                <LoginPage />
               </MainLayout>
             </AuthRoute>
           }

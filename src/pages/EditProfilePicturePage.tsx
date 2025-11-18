@@ -9,8 +9,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ImagePlus, Loader2, Save } from 'lucide-react';
 
 import { uploadImage } from '@/utils';
-import { useAppSelector } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { UPDATE_PROFILE_PICTURE } from '@/graphql';
+import { setProfilePicture } from '@/store';
 
 type Area = {
   x: number;
@@ -25,6 +26,7 @@ const OUTPUT_SIZE = 512;
 
 export const EditProfilePicturePage = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { uid, token } = useAppSelector((state) => state.auth);
 
   const [file, setFile] = useState<File | null>(null);
@@ -235,13 +237,18 @@ export const EditProfilePicturePage = () => {
       setUploading(true);
       const downloadUrl = await uploadImage(compressedFile, uid!, 'profilePictures');
 
-      await updateProfilePicture({
+      const { data } = await updateProfilePicture({
         variables: {
           url: downloadUrl,
         },
       });
 
-      navigate('/edit-profile');
+      if (data?.updateProfilePicture.profilePicture) {
+        dispatch(setProfilePicture(data.updateProfilePicture.profilePicture));
+        navigate('/edit-profile');
+      } else {
+        setError('Failed to update profile picture');
+      }
     } catch (error: unknown) {
       console.error('Error updating profile picture: ', error);
       setError((error as Error).message || 'Something went wrong. Please try again.');

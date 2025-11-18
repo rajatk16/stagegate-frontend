@@ -1,28 +1,19 @@
 import { Helmet } from 'react-helmet';
-import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router';
+import { useMutation } from '@apollo/client/react';
 import { useEffect, useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client/react';
-import { AlertCircle, ArrowLeft, Camera, Loader2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, Trash2 } from 'lucide-react';
 
-import { useAppSelector } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { EditSocialMedia, InputField } from '@/components';
 import { ME, UPDATE_USER, DELETE_PROFILE_PICTURE, type UpdateUserInput } from '@/graphql';
+import { setProfilePicture } from '@/store';
 
 export const EditProfilePage = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { token } = useAppSelector((state) => state.auth);
-  const {
-    data,
-    loading,
-    error: meError,
-  } = useQuery(ME, {
-    context: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  });
+  const { user } = useAppSelector((state) => state.user);
 
   const [updateUser] = useMutation(UPDATE_USER, {
     context: {
@@ -32,14 +23,17 @@ export const EditProfilePage = () => {
     },
   });
 
-  const [deleteProfilePicture] = useMutation(DELETE_PROFILE_PICTURE, {
-    context: {
-      headers: {
-        Authorization: `Bearer ${token}`,
+  const [deleteProfilePicture, { loading: deletingProfilePicture }] = useMutation(
+    DELETE_PROFILE_PICTURE,
+    {
+      context: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
+      refetchQueries: [ME],
     },
-    refetchQueries: [ME],
-  });
+  );
 
   const initialSocialMedia = useMemo(() => {
     return [
@@ -82,7 +76,6 @@ export const EditProfilePage = () => {
     ];
   }, []);
 
-  const user = data?.me;
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
@@ -182,6 +175,15 @@ export const EditProfilePage = () => {
     }
   };
 
+  const handleDeleteProfilePicture = async () => {
+    try {
+      await deleteProfilePicture();
+      dispatch(setProfilePicture(''));
+    } catch (error: unknown) {
+      console.error('Error deleting profile picture: ', error);
+      setFormError('Failed to delete profile picture');
+    }
+  };
   return (
     <>
       <Helmet>
@@ -202,173 +204,149 @@ export const EditProfilePage = () => {
             Edit Profile
           </h1>
 
-          {loading && (
-            <div className="flex justify-center items-center py-24">
-              <Loader2 className="w-6 h-6 text-brand-500 animate-spin" />
-              <span className="ml-2 text-gray-600 dark:text-gray-300">
-                Loading your profile...
-              </span>
-            </div>
-          )}
-
-          {!loading && meError && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col justify-center items-center py-24"
-            >
-              <AlertCircle className="w-8 h-8 text-red-500 mb-3" />
-              <p className="text-red-500 font-medium mb-1">Failed to load profile.</p>
-              <p className="text-gray-600 dark:text-gray-400">
-                Please refresh the page or try again later.
-              </p>
-            </motion.div>
-          )}
-
-          {!loading && !meError && (
-            <form
-              onSubmit={handleSubmit}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-6"
-            >
-              <div className="flex flex-col items-center mb-8">
-                <div className="relative">
-                  <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 shadow">
-                    {user?.profilePicture ? (
-                      <img
-                        src={user.profilePicture}
-                        alt={user.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl font-semibold text-white bg-brand-500">
-                        {formData.name?.charAt(0).toUpperCase() ?? 'U'}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-3 mt-3">
-                  <Link
-                    to="/edit-profile-picture"
-                    className="px-4 py-2 text-sm rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-medium transition cursor-pointer flex items-center justify-center"
-                  >
-                    <Camera className="w-4 h-4 mr-2" />
-                    Change Profile Picture
-                  </Link>
-                  {user?.profilePicture && (
-                    <button
-                      type="button"
-                      onClick={() => deleteProfilePicture()}
-                      className="px-4 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition cursor-pointer flex items-center justify-center"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Remove Profile Picture
-                    </button>
-                  )}
-                </div>
-              </div>
-              <InputField
-                id="name"
-                label="Name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-              {nameError && <p className="text-sm text-red-500 mt-1">{nameError}</p>}
-              <InputField
-                id="bio"
-                textArea
-                label="Bio"
-                type="text"
-                value={formData.bio}
-                onChange={handleChange}
-              />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InputField
-                  id="city"
-                  label="City"
-                  type="text"
-                  value={formData.city}
-                  onChange={handleChange}
-                />
-                <InputField
-                  type="text"
-                  id="country"
-                  label="Country"
-                  onChange={handleChange}
-                  value={formData.country}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InputField
-                  id="phone"
-                  label="Phone"
-                  type="text"
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-
-                <InputField
-                  type="email"
-                  id="secondaryEmail"
-                  label="Secondary Email"
-                  value={formData.secondaryEmail}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InputField
-                  type="text"
-                  id="company"
-                  label="Company"
-                  value={formData.company}
-                  onChange={handleChange}
-                />
-                <InputField
-                  type="text"
-                  id="title"
-                  label="Title"
-                  value={formData.title}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <InputField
-                id="website"
-                label="Website"
-                type="url"
-                value={formData.website}
-                onChange={handleChange}
-              />
-
-              <EditSocialMedia socialMedia={formData.socialMedia} setFormData={setFormData} />
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={saving || !formData.name.trim()}
-                  className={`w-full px-6 py-2.5 font-semibold rounded-lg text-white transition-all ${
-                    saving
-                      ? 'bg-brand-400 cursor-not-allowed'
-                      : 'bg-brand-500 hover:bg-brand-600 cursor-pointer'
-                  }`}
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
-                      Saving...
-                    </>
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-6"
+          >
+            <div className="flex flex-col items-center mb-8">
+              <div className="relative">
+                <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 shadow">
+                  {user?.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    'Save Changes'
+                    <div className="w-full h-full flex items-center justify-center text-3xl font-semibold text-white bg-brand-500">
+                      {formData.name?.charAt(0).toUpperCase() ?? 'U'}
+                    </div>
                   )}
-                </button>
-                {formError && <p className="text-sm text-red-500 mt-3">{formError}</p>}
+                </div>
               </div>
-            </form>
-          )}
+              <div className="flex gap-3 mt-3">
+                <Link
+                  to="/edit-profile-picture"
+                  className="px-4 py-2 text-sm rounded-lg bg-brand-500 hover:bg-brand-600 text-white cursor-pointer flex items-center justify-center"
+                >
+                  <Camera className="w-4 h-4 mr-2" />
+                  Change Profile Picture
+                </Link>
+                {user?.profilePicture && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteProfilePicture}
+                    disabled={deletingProfilePicture}
+                    className={`px-4 py-2 text-sm rounded-lg font-medium transition flex items-center justify-center text-white ${deletingProfilePicture ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600 cursor-pointer'}`}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove Profile Picture
+                  </button>
+                )}
+              </div>
+            </div>
+            <InputField
+              id="name"
+              label="Name"
+              type="text"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+            {nameError && <p className="text-sm text-red-500 mt-1">{nameError}</p>}
+            <InputField
+              id="bio"
+              textArea
+              label="Bio"
+              type="text"
+              value={formData.bio}
+              onChange={handleChange}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InputField
+                id="city"
+                label="City"
+                type="text"
+                value={formData.city}
+                onChange={handleChange}
+              />
+              <InputField
+                type="text"
+                id="country"
+                label="Country"
+                onChange={handleChange}
+                value={formData.country}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InputField
+                id="phone"
+                label="Phone"
+                type="text"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+
+              <InputField
+                type="email"
+                id="secondaryEmail"
+                label="Secondary Email"
+                value={formData.secondaryEmail}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InputField
+                type="text"
+                id="company"
+                label="Company"
+                value={formData.company}
+                onChange={handleChange}
+              />
+              <InputField
+                type="text"
+                id="title"
+                label="Title"
+                value={formData.title}
+                onChange={handleChange}
+              />
+            </div>
+
+            <InputField
+              id="website"
+              label="Website"
+              type="url"
+              value={formData.website}
+              onChange={handleChange}
+            />
+
+            <EditSocialMedia socialMedia={formData.socialMedia} setFormData={setFormData} />
+
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={saving || !formData.name.trim()}
+                className={`w-full px-6 py-2.5 font-semibold rounded-lg text-white transition-all ${
+                  saving
+                    ? 'bg-brand-400 cursor-not-allowed'
+                    : 'bg-brand-500 hover:bg-brand-600 cursor-pointer'
+                }`}
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </button>
+              {formError && <p className="text-sm text-red-500 mt-3">{formError}</p>}
+            </div>
+          </form>
         </div>
       </main>
     </>

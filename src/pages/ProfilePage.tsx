@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
@@ -15,8 +16,9 @@ import {
 } from 'lucide-react';
 
 import { ME } from '@/graphql';
-import { useAppSelector } from '@/hooks';
+import { setUser } from '@/store';
 import { SOCIAL_PLATFORMS } from '@/utils';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 
 const InfoCard = ({
   title,
@@ -43,13 +45,20 @@ const InfoCard = ({
 );
 
 export const ProfilePage = () => {
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.user);
   const { token } = useAppSelector((state) => state.auth);
 
   const { data, loading, error } = useQuery(ME, {
     context: { headers: { Authorization: `Bearer ${token}` } },
   });
 
-  const user = data?.me;
+  // update user slice when user is fetched
+  useEffect(() => {
+    if (data?.me) {
+      dispatch(setUser(data.me));
+    }
+  }, [data?.me, dispatch]);
 
   const formatField = (value?: string | null, fallback = 'Not provided') =>
     !value?.trim() ? (
