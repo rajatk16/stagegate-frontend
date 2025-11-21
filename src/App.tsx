@@ -13,6 +13,7 @@ import {
   ResetPasswordPage,
   ForgotPasswordPage,
   EditProfilePicturePage,
+  CreateOrganizationPage,
 } from '@/pages';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => (
@@ -71,6 +72,16 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <DashboardPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-organization"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <CreateOrganizationPage />
               </MainLayout>
             </ProtectedRoute>
           }

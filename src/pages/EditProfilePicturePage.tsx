@@ -9,9 +9,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ImagePlus, Loader2, Save } from 'lucide-react';
 
 import { uploadImage } from '@/utils';
-import { useAppDispatch, useAppSelector } from '@/hooks';
-import { UPDATE_PROFILE_PICTURE } from '@/graphql';
 import { setProfilePicture } from '@/store';
+import { UPDATE_PROFILE_PICTURE } from '@/graphql';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 
 type Area = {
   x: number;

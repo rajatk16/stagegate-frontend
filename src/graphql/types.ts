@@ -48,6 +48,13 @@ export type ContactInfoInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateOrganizationInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Location = {
   __typename: 'Location';
   city: Maybe<Scalars['String']['output']>;
@@ -61,10 +68,15 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename: 'Mutation';
+  createOrganization: Organization;
   deleteProfilePicture: User;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
+};
+
+export type MutationCreateOrganizationArgs = {
+  input: CreateOrganizationInput;
 };
 
 export type MutationSignUpArgs = {
@@ -88,6 +100,50 @@ export type Occupation = {
 export type OccupationInput = {
   company?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Organization = {
+  __typename: 'Organization';
+  createdAt: Scalars['DateTime']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  logo: Maybe<Scalars['String']['output']>;
+  members: OrganizationMembers;
+  name: Scalars['String']['output'];
+  owner: User;
+  slug: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  website: Maybe<Scalars['String']['output']>;
+};
+
+export type OrganizationMembersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type OrganizationMember = {
+  __typename: 'OrganizationMember';
+  organization: Organization;
+  role: OrganizationMemberRole;
+  user: User;
+};
+
+export enum OrganizationMemberRole {
+  Admin = 'ADMIN',
+  Member = 'MEMBER',
+  Owner = 'OWNER',
+}
+
+export type OrganizationMembers = {
+  __typename: 'OrganizationMembers';
+  pagination: Maybe<Pagination>;
+  results: Array<OrganizationMember>;
+};
+
+export type Pagination = {
+  __typename: 'Pagination';
+  cursor: Maybe<Scalars['String']['output']>;
+  pageSize: Maybe<Scalars['Int']['output']>;
 };
 
 export type Query = {
@@ -135,6 +191,25 @@ export type User = {
   profilePicture: Maybe<Scalars['String']['output']>;
   socialMedia: Maybe<Array<SocialMedia>>;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CreateOrganizationMutationVariables = Exact<{
+  input: CreateOrganizationInput;
+}>;
+
+export type CreateOrganizationMutation = {
+  createOrganization: {
+    __typename: 'Organization';
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    website: string | null;
+    logo: string | null;
+    createdAt: unknown;
+    updatedAt: unknown;
+    owner: { __typename: 'User'; id: string; name: string; email: string };
+  };
 };
 
 export type DeleteProfilePictureMutationVariables = Exact<{ [key: string]: never }>;
