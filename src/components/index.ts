@@ -8,4 +8,5 @@ export * from './HowItWorks';
 export * from './InputField';
 export * from './AuthListener';
 export * from './RegisterForm';
+export * from './OrgLogoUploader';
 export * from './EditSocialMedia';
