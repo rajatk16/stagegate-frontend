@@ -150,6 +150,7 @@ export type Query = {
   __typename: 'Query';
   authStatus: Maybe<AuthStatus>;
   me: Maybe<User>;
+  myOrganizations: Array<Organization>;
 };
 
 export type SignUpInput = {
@@ -305,4 +306,19 @@ export type MeQuery = {
     } | null;
     socialMedia: Array<{ __typename: 'SocialMedia'; handle: string; platform: string }> | null;
   } | null;
+};
+
+export type MyOrganizationsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type MyOrganizationsQuery = {
+  myOrganizations: Array<{
+    __typename: 'Organization';
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    website: string | null;
+    logo: string | null;
+    owner: { __typename: 'User'; id: string };
+  }>;
 };
