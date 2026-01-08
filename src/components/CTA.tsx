@@ -28,7 +28,7 @@ export const CTA = () => (
         className="mt-8"
       >
         <Link
-          to="/auth"
+          to="/register"
           className="inline-flex items-center justify-center px-8 py-3 bg-white text-brand-600 font-semibold rounded-lg shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-brand-500 transition-all"
         >
           Get Started for Free

@@ -17,10 +17,10 @@ import {
 
 import { auth } from '@/libs';
 import { useAppSelector } from '@/hooks';
-import { AUTH_STATUS, MY_ORGANIZATIONS } from '@/graphql';
+import { AUTH_STATUS, MY_ORGANIZATIONS, OrganizationMemberRole } from '@/graphql';
 
 export const DashboardPage = () => {
-  const { token, email, uid } = useAppSelector((state) => state.auth);
+  const { token, email } = useAppSelector((state) => state.auth);
   const {
     data: authStatusData,
     loading: authStatusLoading,
@@ -66,7 +66,9 @@ export const DashboardPage = () => {
 
   const organizations = myOrgsData?.myOrganizations ?? [];
   const hasOrganizations = organizations.length > 0;
-  const isOwnerOfAny = organizations.some((org) => org.owner.id === uid);
+  const isOwnerOfAny = organizations.some(
+    (org) => org.viewerRole === OrganizationMemberRole.Owner,
+  );
 
   return (
     <>
@@ -169,7 +171,7 @@ export const DashboardPage = () => {
                     Join Organization
                   </Link>
                 )}
-                {isOwnerOfAny && (
+                {!isOwnerOfAny && (
                   <Link
                     to="/create-organization"
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-medium shadow transition-all hover:shadow-md"
@@ -213,9 +215,19 @@ export const DashboardPage = () => {
                         <p className="text-semibold text-gray-800 dark:text-gray-200 truncate">
                           {org.name}
                         </p>
-                        {org.owner.id === uid && (
+                        {org.viewerRole === OrganizationMemberRole.Owner && (
                           <span className="px-2 py-0.5 text-xs rounded-full bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200 border border-brand-200 dark:border-brand-700">
                             Owner
+                          </span>
+                        )}
+                        {org.viewerRole === OrganizationMemberRole.Admin && (
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-700">
+                            Admin
+                          </span>
+                        )}
+                        {org.viewerRole === OrganizationMemberRole.Member && (
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 border border-green-200 dark:border-green-700">
+                            Member
                           </span>
                         )}
                       </div>

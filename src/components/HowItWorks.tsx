@@ -53,9 +53,6 @@ export const HowItWorks = () => (
 
       {/* Timeline container */}
       <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-[2px] bg-linear-to-b from-brand-400/30 via-brand-500/40 to-brand-400/30" />
-
         {/* Timeline steps */}
         <div className="space-y-16">
           {steps.map((s, idx) => (

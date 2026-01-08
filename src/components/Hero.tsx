@@ -35,7 +35,7 @@ export const Hero = () => (
         className="mt-10 flex justify-center"
       >
         <Link
-          to="/auth"
+          to="/register"
           className="inline-flex items-center justify-center px-8 py-3 text-base font-semibold rounded-lg bg-brand-500 hover:bg-brand-600 text-white shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
         >
           Get Started
