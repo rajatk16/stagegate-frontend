@@ -13,6 +13,7 @@ export const MY_ORGANIZATIONS: TypedDocumentNode<
       description
       website
       logo
+      viewerRole
       owner {
         id
       }

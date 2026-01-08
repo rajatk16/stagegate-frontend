@@ -113,6 +113,7 @@ export type Organization = {
   owner: User;
   slug: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  viewerRole: Maybe<OrganizationMemberRole>;
   website: Maybe<Scalars['String']['output']>;
 };
 
@@ -319,6 +320,7 @@ export type MyOrganizationsQuery = {
     description: string | null;
     website: string | null;
     logo: string | null;
+    viewerRole: OrganizationMemberRole | null;
     owner: { __typename: 'User'; id: string };
   }>;
 };
