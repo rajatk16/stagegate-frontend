@@ -50,6 +50,7 @@ export type ContactInfoInput = {
 
 export type CreateOrganizationInput = {
   description?: InputMaybe<Scalars['String']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
   logo?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   website?: InputMaybe<Scalars['String']['input']>;
@@ -107,6 +108,7 @@ export type Organization = {
   createdAt: Scalars['DateTime']['output'];
   description: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  isPublic: Scalars['Boolean']['output'];
   logo: Maybe<Scalars['String']['output']>;
   members: OrganizationMembers;
   name: Scalars['String']['output'];
