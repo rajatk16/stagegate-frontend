@@ -1,37 +1,14 @@
-import { useState } from 'react';
 import { Link } from 'react-router';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useQuery } from '@apollo/client/react';
-import { sendEmailVerification } from 'firebase/auth';
-import {
-  Building2,
-  LogIn,
-  FolderKanban,
-  AlertCircle,
-  Loader2,
-  MailCheck,
-  ArrowRight,
-  Globe,
-} from 'lucide-react';
+import { Building2, LogIn, FolderKanban, ArrowRight, Globe } from 'lucide-react';
 
-import { auth } from '@/libs';
 import { useAppSelector } from '@/hooks';
-import { AUTH_STATUS, MY_ORGANIZATIONS, OrganizationMemberRole } from '@/graphql';
+import { MY_ORGANIZATIONS, OrganizationMemberRole } from '@/graphql';
 
 export const DashboardPage = () => {
-  const { token, email } = useAppSelector((state) => state.auth);
-  const {
-    data: authStatusData,
-    loading: authStatusLoading,
-    error: authStatusError,
-  } = useQuery(AUTH_STATUS, {
-    context: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  });
+  const { token } = useAppSelector((state) => state.auth);
 
   const { data: myOrgsData, loading: myOrgsLoading } = useQuery(MY_ORGANIZATIONS, {
     context: {
@@ -39,30 +16,8 @@ export const DashboardPage = () => {
         Authorization: `Bearer ${token}`,
       },
     },
+    fetchPolicy: 'network-only',
   });
-
-  const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const emailVerified = authStatusData?.authStatus?.emailVerified;
-
-  const handleSendVerfication = async () => {
-    if (!auth.currentUser) return;
-    setSending(true);
-    setErrorMsg(null);
-    setSent(false);
-
-    try {
-      await sendEmailVerification(auth.currentUser);
-      setSent(true);
-    } catch (error) {
-      console.error(error);
-      setErrorMsg('Failed to send verification email. Please try again.');
-    } finally {
-      setSending(false);
-    }
-  };
 
   const organizations = myOrgsData?.myOrganizations ?? [];
   const hasOrganizations = organizations.length > 0;
@@ -82,52 +37,6 @@ export const DashboardPage = () => {
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
         <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
-          {!authStatusLoading && !authStatusError && emailVerified === false && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200"
-            >
-              <div className="flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 shrink-0" />
-                <p>
-                  Your email <span className="font-medium">{email}</span> is not verified.
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleSendVerfication}
-                  disabled={sending || sent}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    sending || sent
-                      ? 'bg-gray-400 dark:bg-gray-700 text-gray-200 cursor-not-allowed'
-                      : 'bg-brand-500 hover:bg-brand-600 text-white shadow-sm hover:shadow cursor-pointer'
-                  }`}
-                >
-                  {sending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 inline animate-spin mr-2" />
-                      Sending...
-                    </>
-                  ) : sent ? (
-                    <>
-                      <MailCheck className="w-4 h-4 inline mr-2" />
-                      Sent!
-                    </>
-                  ) : (
-                    'Send Verification Email'
-                  )}
-                </button>
-              </div>
-
-              {errorMsg && (
-                <p className="text-sm text-red-500 mt-2 sm:mt-0 w-full sm:w-auto text-center">
-                  {errorMsg}
-                </p>
-              )}
-            </motion.div>
-          )}
           {myOrgsLoading && (
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700 shadow-sm">
               {[1, 2, 3].map((i) => (
@@ -162,25 +71,25 @@ export const DashboardPage = () => {
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
                 Organizations
               </h1>
-              <div className="flex gap-3">
-                {hasOrganizations && (
+              {hasOrganizations && (
+                <div className="flex gap-3">
                   <Link
                     to="/join-organization"
                     className="px-4 py-2 rounded-md text-sm font-medium border border-brand-500 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     Join Organization
                   </Link>
-                )}
-                {!isOwnerOfAny && (
-                  <Link
-                    to="/create-organization"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-medium shadow transition-all hover:shadow-md"
-                  >
-                    <Building2 className="w-4 h-4" />
-                    Create Organization
-                  </Link>
-                )}
-              </div>
+                  {!isOwnerOfAny && (
+                    <Link
+                      to="/create-organization"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-medium shadow transition-all hover:shadow-md"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      Create Organization
+                    </Link>
+                  )}
+                </div>
+              )}
             </motion.div>
           )}
 

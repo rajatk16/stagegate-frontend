@@ -1,4 +1,5 @@
 import { gql, type TypedDocumentNode } from '@apollo/client';
+
 import type { MeQuery, MeQueryVariables } from '../types';
 
 export const ME: TypedDocumentNode<MeQuery, MeQueryVariables> = gql`

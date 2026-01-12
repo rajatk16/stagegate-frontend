@@ -1,4 +1,5 @@
 import { gql, type TypedDocumentNode } from '@apollo/client';
+
 import type { CreateOrganizationMutation, CreateOrganizationMutationVariables } from '../types';
 
 export const CREATE_ORGANIZATION: TypedDocumentNode<

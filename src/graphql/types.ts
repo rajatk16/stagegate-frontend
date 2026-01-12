@@ -154,6 +154,13 @@ export type Query = {
   authStatus: Maybe<AuthStatus>;
   me: Maybe<User>;
   myOrganizations: Array<Organization>;
+  searchOrganizations: Array<Organization>;
+};
+
+export type QuerySearchOrganizationsArgs = {
+  excludeMyOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
 };
 
 export type SignUpInput = {
@@ -324,5 +331,23 @@ export type MyOrganizationsQuery = {
     logo: string | null;
     viewerRole: OrganizationMemberRole | null;
     owner: { __typename: 'User'; id: string };
+  }>;
+};
+
+export type SearchOrganizationsQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+  excludeMyOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+export type SearchOrganizationsQuery = {
+  searchOrganizations: Array<{
+    __typename: 'Organization';
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    website: string | null;
   }>;
 };
