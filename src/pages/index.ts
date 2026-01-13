@@ -7,5 +7,6 @@ export * from './DashboardPage';
 export * from './EditProfilePage';
 export * from './ResetPasswordPage';
 export * from './ForgotPasswordPage';
+export * from './JoinOrganizationPage';
 export * from './CreateOrganizationPage';
 export * from './EditProfilePicturePage';
