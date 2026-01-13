@@ -56,6 +56,10 @@ export type CreateOrganizationInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type JoinOrganizationInput = {
+  organizationId: Scalars['ID']['input'];
+};
+
 export type Location = {
   __typename: 'Location';
   city: Maybe<Scalars['String']['output']>;
@@ -71,6 +75,7 @@ export type Mutation = {
   __typename: 'Mutation';
   createOrganization: Organization;
   deleteProfilePicture: User;
+  joinOrganization: OrganizationMember;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
@@ -78,6 +83,10 @@ export type Mutation = {
 
 export type MutationCreateOrganizationArgs = {
   input: CreateOrganizationInput;
+};
+
+export type MutationJoinOrganizationArgs = {
+  input: JoinOrganizationInput;
 };
 
 export type MutationSignUpArgs = {
@@ -231,6 +240,17 @@ export type DeleteProfilePictureMutation = {
     name: string;
     email: string;
     profilePicture: string | null;
+  };
+};
+
+export type JoinOrganizationMutationVariables = Exact<{
+  input: JoinOrganizationInput;
+}>;
+
+export type JoinOrganizationMutation = {
+  joinOrganization: {
+    __typename: 'OrganizationMember';
+    organization: { __typename: 'Organization'; id: string; slug: string };
   };
 };
 

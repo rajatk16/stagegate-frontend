@@ -1,18 +1,28 @@
 import { Helmet } from 'react-helmet';
-import { Building2, ExternalLink, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router';
 import { useEffect, useState } from 'react';
-import { useLazyQuery } from '@apollo/client/react';
+import { Building2, ExternalLink, Search } from 'lucide-react';
+import { useLazyQuery, useMutation } from '@apollo/client/react';
 
 import { useAppSelector } from '@/hooks';
-import { SEARCH_ORGANIZATIONS } from '@/graphql';
+import { SEARCH_ORGANIZATIONS, JOIN_ORGANIZATION } from '@/graphql';
 
 export const JoinOrganizationPage = () => {
+  const navigate = useNavigate();
   const { token } = useAppSelector((state) => state.auth);
 
   const [query, setQuery] = useState('');
   const [searchOrgs, { data, loading, error }] = useLazyQuery(SEARCH_ORGANIZATIONS, {
     fetchPolicy: 'cache-and-network',
+  });
+
+  const [joinOrganization, { loading: joining }] = useMutation(JOIN_ORGANIZATION, {
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
   });
 
   useEffect(() => {
@@ -33,6 +43,26 @@ export const JoinOrganizationPage = () => {
   }, [query, searchOrgs, token]);
 
   const organizations = data?.searchOrganizations ?? [];
+
+  const handleJoinOrganization = async (organizationId: string) => {
+    try {
+      const { data } = await joinOrganization({
+        variables: {
+          input: {
+            organizationId,
+          },
+        },
+      });
+
+      const slug = data?.joinOrganization?.organization?.slug;
+
+      if (slug) {
+        navigate(`/organizations/${slug}`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -86,7 +116,7 @@ export const JoinOrganizationPage = () => {
               </div>
             )}
 
-            {!loading && !error && (
+            {!loading && !error && query && organizations.length !== 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -140,9 +170,18 @@ export const JoinOrganizationPage = () => {
 
                       <button
                         type="button"
-                        className="px-4 py-2 rounded-md bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-brand-400"
+                        disabled={joining}
+                        onClick={() => handleJoinOrganization(org.id)}
+                        className={`
+                          px-4 py-2 rounded-md text-sm font-semibold transition
+                          ${
+                            joining
+                              ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+                              : 'bg-brand-500 hover:bg-brand-600 text-white cursor-pointer'
+                          }
+                        `}
                       >
-                        Join
+                        {joining ? 'Joining...' : 'Join'}
                       </button>
                     </div>
                   </motion.div>
