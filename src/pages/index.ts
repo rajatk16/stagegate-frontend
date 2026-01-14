@@ -5,6 +5,7 @@ export * from './NotFoundPage';
 export * from './RegisterPage';
 export * from './DashboardPage';
 export * from './EditProfilePage';
+export * from './OrganizationPage';
 export * from './ResetPasswordPage';
 export * from './ForgotPasswordPage';
 export * from './JoinOrganizationPage';
