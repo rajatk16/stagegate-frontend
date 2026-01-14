@@ -163,7 +163,12 @@ export type Query = {
   authStatus: Maybe<AuthStatus>;
   me: Maybe<User>;
   myOrganizations: Array<Organization>;
+  organizationBySlug: Organization;
   searchOrganizations: Array<Organization>;
+};
+
+export type QueryOrganizationBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 export type QuerySearchOrganizationsArgs = {
@@ -352,6 +357,37 @@ export type MyOrganizationsQuery = {
     viewerRole: OrganizationMemberRole | null;
     owner: { __typename: 'User'; id: string };
   }>;
+};
+
+export type OrganizationBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+export type OrganizationBySlugQuery = {
+  organizationBySlug: {
+    __typename: 'Organization';
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    website: string | null;
+    logo: string | null;
+    viewerRole: OrganizationMemberRole | null;
+    members: {
+      __typename: 'OrganizationMembers';
+      results: Array<{
+        __typename: 'OrganizationMember';
+        role: OrganizationMemberRole;
+        user: {
+          __typename: 'User';
+          id: string;
+          name: string;
+          email: string;
+          profilePicture: string | null;
+        };
+      }>;
+    };
+  };
 };
 
 export type SearchOrganizationsQueryVariables = Exact<{
