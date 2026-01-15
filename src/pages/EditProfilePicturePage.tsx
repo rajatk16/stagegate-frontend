@@ -6,12 +6,13 @@ import { useNavigate } from 'react-router';
 import { useMutation } from '@apollo/client/react';
 import imageCompression from 'browser-image-compression';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ImagePlus, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save } from 'lucide-react';
 
 import { uploadImage } from '@/utils';
 import { setProfilePicture } from '@/store';
 import { UPDATE_PROFILE_PICTURE } from '@/graphql';
 import { useAppDispatch, useAppSelector } from '@/hooks';
+import { DropZone } from '@/ui';
 
 type Area = {
   x: number;
@@ -89,18 +90,6 @@ export const EditProfilePicturePage = () => {
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0] ?? null;
     onFileSelected(selected);
-  };
-
-  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const dropped = e.dataTransfer.files?.[0] ?? null;
-    if (dropped) onFileSelected(dropped);
-  };
-
-  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
   };
 
   const onCropComplete = useCallback((_croppedArea: Area, croppedPixels: Area) => {
@@ -258,33 +247,6 @@ export const EditProfilePicturePage = () => {
     }
   };
 
-  const DropZone = (
-    <motion.div
-      onDrop={onDrop}
-      onDragOver={onDragOver}
-      onClick={() => inputRef.current?.click()}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
-      className="w-full border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6 cursor-pointer hover:border-brand-400 hover:shadow-sm transition-colors text-center"
-      role="button"
-      aria-label="Drop your image here or click to select"
-    >
-      <div className="flex flex-col items-center justify-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-          <ImagePlus className="w-6 h-6 text-gray-500" />
-        </div>
-        <div>
-          <p className="font-medium text-gray-800 dark:text-gray-200">Drag & drop image here</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">or click to select a file</p>
-        </div>
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          JPEG, PNG, or WebP (max 8MB)
-        </p>
-      </div>
-    </motion.div>
-  );
-
   return (
     <>
       <Helmet>
@@ -319,7 +281,7 @@ export const EditProfilePicturePage = () => {
             <div className="mb-4">
               {!src ? (
                 <>
-                  {DropZone}
+                  <DropZone onFileSelected={onFileSelected} inputRef={inputRef} />
                   <input
                     required
                     type="file"
