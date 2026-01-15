@@ -7,6 +7,7 @@ import { useLazyQuery, useMutation } from '@apollo/client/react';
 
 import { useAppSelector } from '@/hooks';
 import { SEARCH_ORGANIZATIONS, JOIN_ORGANIZATION } from '@/graphql';
+import { OrganizationsSkeleton } from '@/ui';
 
 export const JoinOrganizationPage = () => {
   const navigate = useNavigate();
@@ -93,16 +94,7 @@ export const JoinOrganizationPage = () => {
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700 shadow-sm">
-            {loading &&
-              [1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center justify-between p-5 animate-pulse">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-700" />
-                    <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded" />
-                  </div>
-                  <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
-                </div>
-              ))}
+            {loading && <OrganizationsSkeleton />}
 
             {!loading && error && (
               <div className="p-6 text-center text-red-600 dark:text-red-400">

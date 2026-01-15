@@ -2,9 +2,11 @@ import { Link } from 'react-router';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useQuery } from '@apollo/client/react';
-import { Building2, LogIn, FolderKanban, ArrowRight, Globe } from 'lucide-react';
+import { Building2, LogIn, FolderKanban } from 'lucide-react';
 
 import { useAppSelector } from '@/hooks';
+import { OrganizationsSkeleton } from '@/ui';
+import { DashboardHeader, OrganizationsList } from '@/components';
 import { MY_ORGANIZATIONS, OrganizationMemberRole } from '@/graphql';
 
 export const DashboardPage = () => {
@@ -37,140 +39,14 @@ export const DashboardPage = () => {
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
         <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
-          {myOrgsLoading && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700 shadow-sm">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between gap-6 p-5 animate-pulse"
-                >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-700" />
-                    <div className="space-y-2 min-w-0">
-                      <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded" />
-                      <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
-                    <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          {myOrgsLoading && <OrganizationsSkeleton />}
 
           {!myOrgsLoading && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
-            >
-              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                Organizations
-              </h1>
-              {hasOrganizations && (
-                <div className="flex gap-3">
-                  <Link
-                    to="/join-organization"
-                    className="px-4 py-2 rounded-md text-sm font-medium border border-brand-500 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    Join Organization
-                  </Link>
-                  {!isOwnerOfAny && (
-                    <Link
-                      to="/create-organization"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-medium shadow transition-all hover:shadow-md"
-                    >
-                      <Building2 className="w-4 h-4" />
-                      Create Organization
-                    </Link>
-                  )}
-                </div>
-              )}
-            </motion.div>
+            <DashboardHeader isOwnerOfAny={isOwnerOfAny} hasOrganizations={hasOrganizations} />
           )}
 
           {!myOrgsLoading && hasOrganizations && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700 shadow-sm overflow-hidden"
-            >
-              {organizations.map((org, idx) => (
-                <motion.div
-                  key={org.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="flex items-center justify-between gap-6 p-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
-                      {org.logo ? (
-                        <img
-                          src={org.logo}
-                          alt={org.name}
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <Building2 className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center justify-center gap-2">
-                        <p className="text-semibold text-gray-800 dark:text-gray-200 truncate">
-                          {org.name}
-                        </p>
-                        {org.viewerRole === OrganizationMemberRole.Owner && (
-                          <span className="px-2 py-0.5 text-xs rounded-full bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200 border border-brand-200 dark:border-brand-700">
-                            Owner
-                          </span>
-                        )}
-                        {org.viewerRole === OrganizationMemberRole.Admin && (
-                          <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-700">
-                            Admin
-                          </span>
-                        )}
-                        {org.viewerRole === OrganizationMemberRole.Member && (
-                          <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 border border-green-200 dark:border-green-700">
-                            Member
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    {org.website && (
-                      <a
-                        href={
-                          org.website.startsWith('http')
-                            ? org.website
-                            : `https://${org.website}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-brand-600 hover:underline"
-                      >
-                        <Globe className="w-4 h-4" />
-                        <span className="sr-only">Visit {org.name} website</span>
-                      </a>
-                    )}
-
-                    <Link
-                      to={`/organizations/${org.slug}`}
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm rounded-md bg-brand-500 hover:bg-brand-600 text-white font-medium transition-all shadow-sm hover:shadow"
-                    >
-                      <ArrowRight className="w-4 h-4" />
-                      <span className="sr-only">Open {org.name} organization</span>
-                    </Link>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+            <OrganizationsList organizations={organizations} />
           )}
 
           {!myOrgsLoading && !hasOrganizations && (
