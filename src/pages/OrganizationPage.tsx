@@ -6,6 +6,7 @@ import { Building2, Calendar, Users } from 'lucide-react';
 
 import { useAppSelector } from '@/hooks';
 import { ORGANIZATION_BY_SLUG, OrganizationMemberRole } from '@/graphql';
+import { OrgMembersTab } from '@/components';
 
 export type Tab = 'events' | 'members';
 
@@ -87,12 +88,6 @@ export const OrganizationPage = () => {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                       {data.organizationBySlug.name}
                     </h1>
-                    <p className="text-sm text-gray-500">
-                      Role:{' '}
-                      <span className="font-medium">
-                        {data.organizationBySlug?.viewerRole ?? ''}
-                      </span>
-                    </p>
                   </div>
                 </div>
 
@@ -135,33 +130,7 @@ export const OrganizationPage = () => {
                   </div>
                 )}
 
-                {activeTab === 'members' && (
-                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 divide-y mt-5">
-                    {data.organizationBySlug.members.results.map((m) => (
-                      <div key={m.user.id} className="flex items-center gap-4 p-4">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                          {m.user.profilePicture ? (
-                            <img
-                              src={m.user.profilePicture}
-                              alt={m.user.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-3xl text-white bg-brand-500">
-                              {m.user.name?.charAt(0).toUpperCase() || 'U'}
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-200">
-                            {m.user.name}
-                          </p>
-                          <p className="text-sm text-gray-500">{m.role}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {activeTab === 'members' && <OrgMembersTab slug={slug ?? ''} />}
               </section>
 
               <aside className="space-y-6">

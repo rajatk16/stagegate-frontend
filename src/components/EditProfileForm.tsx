@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Camera, Loader2, Trash2 } from 'lucide-react';
 
-import { InputField } from './InputField';
+import { InputField } from '@/ui';
 import { setProfilePicture } from '@/store';
 import { EditSocialMedia } from './EditSocialMedia';
 import { useAppDispatch, useAppSelector } from '@/hooks';
