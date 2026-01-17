@@ -390,6 +390,31 @@ export type OrganizationBySlugQuery = {
   };
 };
 
+export type OrgMembersQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+export type OrgMembersQuery = {
+  organizationBySlug: {
+    __typename: 'Organization';
+    id: string;
+    members: {
+      __typename: 'OrganizationMembers';
+      results: Array<{
+        __typename: 'OrganizationMember';
+        role: OrganizationMemberRole;
+        user: {
+          __typename: 'User';
+          id: string;
+          name: string;
+          email: string;
+          profilePicture: string | null;
+        };
+      }>;
+    };
+  };
+};
+
 export type SearchOrganizationsQueryVariables = Exact<{
   query: Scalars['String']['input'];
   excludeMyOrganizations?: InputMaybe<Scalars['Boolean']['input']>;

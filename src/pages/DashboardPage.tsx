@@ -5,9 +5,8 @@ import { useQuery } from '@apollo/client/react';
 import { Building2, LogIn, FolderKanban } from 'lucide-react';
 
 import { useAppSelector } from '@/hooks';
-import { OrganizationsSkeleton } from '@/ui';
-import { DashboardHeader, OrganizationsList } from '@/components';
 import { MY_ORGANIZATIONS, OrganizationMemberRole } from '@/graphql';
+import { DashboardHeader, OrganizationsList, OrganizationsSkeleton } from '@/components';
 
 export const DashboardPage = () => {
   const { token } = useAppSelector((state) => state.auth);

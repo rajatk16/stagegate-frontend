@@ -5,7 +5,7 @@ import { useMutation } from '@apollo/client/react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 import { auth } from '@/libs';
-import { InputField } from '@/components';
+import { InputField } from '@/ui';
 import { SIGN_UP_MUTATION } from '@/graphql';
 import { setAuth, setLoading } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/hooks';

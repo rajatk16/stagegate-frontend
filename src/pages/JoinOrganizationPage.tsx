@@ -6,8 +6,8 @@ import { Building2, ExternalLink, Search } from 'lucide-react';
 import { useLazyQuery, useMutation } from '@apollo/client/react';
 
 import { useAppSelector } from '@/hooks';
+import { OrganizationsSkeleton } from '@/components';
 import { SEARCH_ORGANIZATIONS, JOIN_ORGANIZATION } from '@/graphql';
-import { OrganizationsSkeleton } from '@/ui';
 
 export const JoinOrganizationPage = () => {
   const navigate = useNavigate();

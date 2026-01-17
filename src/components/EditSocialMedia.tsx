@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useMemo } from 'react';
 
-import { InputField } from './InputField';
+import { InputField } from '@/ui';
 import { SOCIAL_PLATFORMS } from '@/utils';
 
 interface SocialEntry {

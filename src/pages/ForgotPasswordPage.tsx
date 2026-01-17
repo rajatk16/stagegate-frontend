@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, CheckCircle2, Loader2, Mail } from 'lucide-react';
 
 import { auth } from '@/libs';
-import { InputField } from '@/components';
+import { InputField } from '@/ui';
 
 export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
