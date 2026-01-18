@@ -8,6 +8,7 @@ export const ORGANIZATION_MEMBERS: TypedDocumentNode<
   query OrgMembers($slug: String!) {
     organizationBySlug(slug: $slug) {
       id
+      viewerRole
       members {
         results {
           role

@@ -1,10 +1,15 @@
-import { useQuery } from '@apollo/client/react';
-import { Check, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Check, AlertCircle, Loader2 } from 'lucide-react';
+import { useMutation, useQuery } from '@apollo/client/react';
 
 import { DropDown } from '@/ui';
-import { OrgMembersSkeleton } from '@/components';
 import { useAppSelector } from '@/hooks';
-import { ORGANIZATION_MEMBERS, OrganizationMemberRole } from '@/graphql';
+import { OrgMembersSkeleton } from '@/components';
+import {
+  CHANGE_ORG_MEMBER_ROLE,
+  ORGANIZATION_MEMBERS,
+  OrganizationMemberRole,
+} from '@/graphql';
 
 const ROLE_OPTIONS = [
   {
@@ -22,12 +27,8 @@ const ROLE_OPTIONS = [
   },
 ];
 
-const onRoleChange = (role: OrganizationMemberRole) => {
-  console.log(role);
-};
-
 export const OrgMembersTab = (props: { slug: string }) => {
-  const { token } = useAppSelector((state) => state.auth);
+  const { token, uid } = useAppSelector((state) => state.auth);
 
   const { data, loading, error } = useQuery(ORGANIZATION_MEMBERS, {
     variables: { slug: props.slug },
@@ -37,6 +38,43 @@ export const OrgMembersTab = (props: { slug: string }) => {
       },
     },
   });
+
+  const [changeOrgMemberRole, { loading: mutationLoading, error: mutationError }] = useMutation(
+    CHANGE_ORG_MEMBER_ROLE,
+    {
+      context: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    },
+  );
+
+  const [activeUserId, setActiveUserId] = useState<string | null>(null);
+
+  const viewerRole = data?.organizationBySlug.viewerRole;
+
+  const canManageRoles =
+    viewerRole === OrganizationMemberRole.Owner || viewerRole === OrganizationMemberRole.Admin;
+
+  const handleRoleChange = async (userId: string, role: OrganizationMemberRole) => {
+    setActiveUserId(userId);
+    try {
+      if (!data?.organizationBySlug.id) return;
+      await changeOrgMemberRole({
+        variables: {
+          input: {
+            role,
+            userId,
+            organizationId: data?.organizationBySlug.id,
+          },
+        },
+        refetchQueries: [ORGANIZATION_MEMBERS],
+      });
+    } finally {
+      setActiveUserId(null);
+    }
+  };
 
   return (
     <div className="mt-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -70,48 +108,71 @@ export const OrgMembersTab = (props: { slug: string }) => {
           )}
           {!loading &&
             !error &&
-            data?.organizationBySlug.members.results.map((m) => (
-              <tr key={m.user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 shrink-0">
-                      {m.user.profilePicture ? (
-                        <img
-                          src={m.user.profilePicture}
-                          alt={m.user.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-sm font-semibold text-white bg-brand-500">
-                          {m.user.name?.charAt(0).toUpperCase() || 'U'}
-                        </div>
+            data?.organizationBySlug.members.results.map((m) => {
+              const isRowLoading = mutationLoading && activeUserId === m.user.id;
+
+              const disabled = !canManageRoles || m.user.id === uid || isRowLoading;
+
+              return (
+                <tr key={m.user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                        {m.user.profilePicture ? (
+                          <img
+                            src={m.user.profilePicture}
+                            alt={m.user.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-sm font-semibold text-white bg-brand-500">
+                            {m.user.name?.charAt(0).toUpperCase() || 'U'}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-900 dark:text-gray-200 truncate">
+                          {m.user.name}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">{m.user.email}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-5 py-4 text-center">
+                    <div className="inline-flex flex-col items-center gap-1">
+                      <DropDown
+                        value={m.role}
+                        options={ROLE_OPTIONS}
+                        disabled={disabled}
+                        onChange={(role) => handleRoleChange(m.user.id, role)}
+                        renderOption={(option, active) => (
+                          <div className="flex items-center gap-2">
+                            <span>{option.label}</span>
+                            {active && <Check className="w-4 h-4" />}
+                          </div>
+                        )}
+                      />
+
+                      {isRowLoading && (
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Updating...
+                        </span>
+                      )}
+
+                      {mutationError && activeUserId === m.user.id && (
+                        <span className="text-xs text-red-500 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" />
+                          {mutationError.message}
+                        </span>
                       )}
                     </div>
-
-                    <div className="min-w-0">
-                      <p className="font-medium text-gray-900 dark:text-gray-200 truncate">
-                        {m.user.name}
-                      </p>
-                      <p className="text-sm text-gray-500 truncate">{m.user.email}</p>
-                    </div>
-                  </div>
-                </td>
-
-                <td className="px-5 py-4 text-center">
-                  <DropDown
-                    value={m.role}
-                    options={ROLE_OPTIONS}
-                    onChange={onRoleChange}
-                    renderOption={(option, active) => (
-                      <div className="flex items-center gap-2">
-                        <span>{option.label}</span>
-                        {active && <Check className="w-4 h-4" />}
-                      </div>
-                    )}
-                  />
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
         </tbody>
       </table>
     </div>

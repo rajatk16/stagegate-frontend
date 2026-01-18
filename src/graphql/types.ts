@@ -35,6 +35,12 @@ export type AuthStatus = {
   uid: Scalars['ID']['output'];
 };
 
+export type ChangeOrgMemberRoleInput = {
+  organizationId: Scalars['ID']['input'];
+  role: OrganizationMemberRole;
+  userId: Scalars['ID']['input'];
+};
+
 export type ContactInfo = {
   __typename: 'ContactInfo';
   phone: Maybe<Scalars['String']['output']>;
@@ -73,12 +79,17 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename: 'Mutation';
+  changeOrgMemberRole: OrganizationMember;
   createOrganization: Organization;
   deleteProfilePicture: User;
   joinOrganization: OrganizationMember;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
+};
+
+export type MutationChangeOrgMemberRoleArgs = {
+  input: ChangeOrgMemberRoleInput;
 };
 
 export type MutationCreateOrganizationArgs = {
@@ -216,6 +227,18 @@ export type User = {
   profilePicture: Maybe<Scalars['String']['output']>;
   socialMedia: Maybe<Array<SocialMedia>>;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ChangeOrgMemberRoleMutationVariables = Exact<{
+  input: ChangeOrgMemberRoleInput;
+}>;
+
+export type ChangeOrgMemberRoleMutation = {
+  changeOrgMemberRole: {
+    __typename: 'OrganizationMember';
+    role: OrganizationMemberRole;
+    user: { __typename: 'User'; id: string };
+  };
 };
 
 export type CreateOrganizationMutationVariables = Exact<{
@@ -373,20 +396,6 @@ export type OrganizationBySlugQuery = {
     website: string | null;
     logo: string | null;
     viewerRole: OrganizationMemberRole | null;
-    members: {
-      __typename: 'OrganizationMembers';
-      results: Array<{
-        __typename: 'OrganizationMember';
-        role: OrganizationMemberRole;
-        user: {
-          __typename: 'User';
-          id: string;
-          name: string;
-          email: string;
-          profilePicture: string | null;
-        };
-      }>;
-    };
   };
 };
 
@@ -398,6 +407,7 @@ export type OrgMembersQuery = {
   organizationBySlug: {
     __typename: 'Organization';
     id: string;
+    viewerRole: OrganizationMemberRole | null;
     members: {
       __typename: 'OrganizationMembers';
       results: Array<{
