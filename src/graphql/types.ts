@@ -83,6 +83,7 @@ export type Mutation = {
   createOrganization: Organization;
   deleteProfilePicture: User;
   joinOrganization: OrganizationMember;
+  removeOrgMember: RemoveOrgMemberPayload;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
@@ -98,6 +99,10 @@ export type MutationCreateOrganizationArgs = {
 
 export type MutationJoinOrganizationArgs = {
   input: JoinOrganizationInput;
+};
+
+export type MutationRemoveOrgMemberArgs = {
+  input: RemoveOrgMemberInput;
 };
 
 export type MutationSignUpArgs = {
@@ -186,6 +191,16 @@ export type QuerySearchOrganizationsArgs = {
   excludeMyOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
+};
+
+export type RemoveOrgMemberInput = {
+  organizationId: Scalars['ID']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+export type RemoveOrgMemberPayload = {
+  __typename: 'RemoveOrgMemberPayload';
+  success: Scalars['Boolean']['output'];
 };
 
 export type SignUpInput = {
@@ -280,6 +295,14 @@ export type JoinOrganizationMutation = {
     __typename: 'OrganizationMember';
     organization: { __typename: 'Organization'; id: string; slug: string };
   };
+};
+
+export type RemoveOrgMemberMutationVariables = Exact<{
+  input: RemoveOrgMemberInput;
+}>;
+
+export type RemoveOrgMemberMutation = {
+  removeOrgMember: { __typename: 'RemoveOrgMemberPayload'; success: boolean };
 };
 
 export type SignUpMutationVariables = Exact<{
@@ -441,4 +464,10 @@ export type SearchOrganizationsQuery = {
     logo: string | null;
     website: string | null;
   }>;
+};
+
+export type MemberRoleFragment = {
+  __typename: 'OrganizationMember';
+  role: OrganizationMemberRole;
+  user: { __typename: 'User'; id: string };
 };
