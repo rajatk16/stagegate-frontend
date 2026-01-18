@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Check, AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { useMutation, useQuery } from '@apollo/client/react';
 
 import { DropDown } from '@/ui';
@@ -9,6 +9,7 @@ import {
   CHANGE_ORG_MEMBER_ROLE,
   ORGANIZATION_MEMBERS,
   OrganizationMemberRole,
+  REMOVE_ORG_MEMBER,
 } from '@/graphql';
 
 const ROLE_OPTIONS = [
@@ -50,6 +51,17 @@ export const OrgMembersTab = (props: { slug: string }) => {
     },
   );
 
+  const [removeOrgMember, { loading: removeOrgMemberLoading }] = useMutation(
+    REMOVE_ORG_MEMBER,
+    {
+      context: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    },
+  );
+
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
 
   const viewerRole = data?.organizationBySlug.viewerRole;
@@ -66,7 +78,7 @@ export const OrgMembersTab = (props: { slug: string }) => {
           input: {
             role,
             userId,
-            organizationId: data?.organizationBySlug.id,
+            organizationId: data.organizationBySlug.id,
           },
         },
         refetchQueries: [ORGANIZATION_MEMBERS],
@@ -74,6 +86,19 @@ export const OrgMembersTab = (props: { slug: string }) => {
     } finally {
       setActiveUserId(null);
     }
+  };
+
+  const handleRemoveMember = async (userId: string) => {
+    if (!data?.organizationBySlug.id) return;
+    await removeOrgMember({
+      variables: {
+        input: {
+          userId,
+          organizationId: data.organizationBySlug.id,
+        },
+      },
+      refetchQueries: [ORGANIZATION_MEMBERS],
+    });
   };
 
   return (
@@ -86,6 +111,9 @@ export const OrgMembersTab = (props: { slug: string }) => {
             </th>
             <th className="px-5 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
               Role
+            </th>
+            <th className="px-5 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+              Actions
             </th>
           </tr>
         </thead>
@@ -145,7 +173,7 @@ export const OrgMembersTab = (props: { slug: string }) => {
                       <DropDown
                         value={m.role}
                         options={ROLE_OPTIONS}
-                        disabled={disabled}
+                        disabled={disabled || removeOrgMemberLoading}
                         onChange={(role) => handleRoleChange(m.user.id, role)}
                         renderOption={(option, active) => (
                           <div className="flex items-center gap-2">
@@ -169,6 +197,23 @@ export const OrgMembersTab = (props: { slug: string }) => {
                         </span>
                       )}
                     </div>
+                  </td>
+
+                  <td className="px-5 py-4 text-center">
+                    {canManageRoles && m.user.id !== uid ? (
+                      <button
+                        disabled={disabled || removeOrgMemberLoading}
+                        onClick={() => handleRemoveMember(m.user.id)}
+                        className="group inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="hidden sm:inline group-hover:inline text-sm font-medium">
+                          Remove
+                        </span>
+                      </button>
+                    ) : (
+                      <span className="text-sm text-gray-400">-</span>
+                    )}
                   </td>
                 </tr>
               );
