@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Check, AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import { useMutation, useQuery } from '@apollo/client/react';
+import { Check, AlertCircle, Loader2, Trash2, LogOut } from 'lucide-react';
 
-import { DropDown } from '@/ui';
 import { useAppSelector } from '@/hooks';
 import { OrgMembersSkeleton } from '@/components';
+import { ActionMenu, DropDown, Modal } from '@/ui';
 import {
-  CHANGE_ORG_MEMBER_ROLE,
-  ORGANIZATION_MEMBERS,
-  OrganizationMemberRole,
   REMOVE_ORG_MEMBER,
+  LEAVE_ORGANIZATION,
+  ORGANIZATION_MEMBERS,
+  CHANGE_ORG_MEMBER_ROLE,
+  OrganizationMemberRole,
 } from '@/graphql';
 
 const ROLE_OPTIONS = [
@@ -29,6 +31,7 @@ const ROLE_OPTIONS = [
 ];
 
 export const OrgMembersTab = (props: { slug: string }) => {
+  const navigate = useNavigate();
   const { token, uid } = useAppSelector((state) => state.auth);
 
   const { data, loading, error } = useQuery(ORGANIZATION_MEMBERS, {
@@ -63,6 +66,33 @@ export const OrgMembersTab = (props: { slug: string }) => {
   );
 
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+
+  const [leaveOrganization, { loading: leaveOrganizationLoading }] = useMutation(
+    LEAVE_ORGANIZATION,
+    {
+      context: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    },
+  );
+
+  const handleLeaveOrganization = async () => {
+    if (!data?.organizationBySlug.id) return;
+    const res = await leaveOrganization({
+      variables: {
+        input: {
+          organizationId: data.organizationBySlug.id,
+        },
+      },
+    });
+
+    if (res.data?.leaveOrganization.success) {
+      navigate('/dashboard');
+    }
+  };
 
   const viewerRole = data?.organizationBySlug.viewerRole;
 
@@ -137,9 +167,21 @@ export const OrgMembersTab = (props: { slug: string }) => {
           {!loading &&
             !error &&
             data?.organizationBySlug.members.results.map((m) => {
-              const isRowLoading = mutationLoading && activeUserId === m.user.id;
+              const isSelf = m.user.id === uid;
+              const isOwner = m.role === OrganizationMemberRole.Owner;
 
-              const disabled = !canManageRoles || m.user.id === uid || isRowLoading;
+              const canRemoveMember = canManageRoles && !isSelf && !isOwner;
+              const canChangeRole = canManageRoles && !isSelf && !isOwner;
+
+              const canLeaveOrganization = isSelf && m.role !== OrganizationMemberRole.Owner;
+
+              const roleOptionsForRow = ROLE_OPTIONS.filter(
+                (opt) => opt.value !== OrganizationMemberRole.Owner,
+              );
+
+              const isRowLoading =
+                (mutationLoading || removeOrgMemberLoading || leaveOrganizationLoading) &&
+                activeUserId === m.user.id;
 
               return (
                 <tr key={m.user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
@@ -170,18 +212,24 @@ export const OrgMembersTab = (props: { slug: string }) => {
 
                   <td className="px-5 py-4 text-center">
                     <div className="inline-flex flex-col items-center gap-1">
-                      <DropDown
-                        value={m.role}
-                        options={ROLE_OPTIONS}
-                        disabled={disabled || removeOrgMemberLoading}
-                        onChange={(role) => handleRoleChange(m.user.id, role)}
-                        renderOption={(option, active) => (
-                          <div className="flex items-center gap-2">
-                            <span>{option.label}</span>
-                            {active && <Check className="w-4 h-4" />}
-                          </div>
-                        )}
-                      />
+                      {canChangeRole ? (
+                        <DropDown
+                          value={m.role}
+                          options={roleOptionsForRow}
+                          disabled={isRowLoading}
+                          onChange={(role) => handleRoleChange(m.user.id, role)}
+                          renderOption={(option, active) => (
+                            <div className="flex items-center gap-2">
+                              <span>{option.label}</span>
+                              {active && <Check className="w-4 h-4" />}
+                            </div>
+                          )}
+                        />
+                      ) : (
+                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                          {m.role}
+                        </span>
+                      )}
 
                       {isRowLoading && (
                         <span className="text-xs text-gray-400 flex items-center gap-1">
@@ -200,26 +248,49 @@ export const OrgMembersTab = (props: { slug: string }) => {
                   </td>
 
                   <td className="px-5 py-4 text-center">
-                    {canManageRoles && m.user.id !== uid ? (
-                      <button
-                        disabled={disabled || removeOrgMemberLoading}
-                        onClick={() => handleRemoveMember(m.user.id)}
-                        className="group inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span className="hidden sm:inline group-hover:inline text-sm font-medium">
-                          Remove
-                        </span>
-                      </button>
-                    ) : (
-                      <span className="text-sm text-gray-400">-</span>
-                    )}
+                    <ActionMenu
+                      disabled={isRowLoading}
+                      options={[
+                        ...(canRemoveMember
+                          ? [
+                              {
+                                danger: true,
+                                icon: Trash2,
+                                label: 'Remove member',
+                                onClick: () => handleRemoveMember(m.user.id),
+                              },
+                            ]
+                          : []),
+                        ...(canLeaveOrganization
+                          ? [
+                              {
+                                label: 'Leave organization',
+                                icon: LogOut,
+                                danger: true,
+                                onClick: () => setShowLeaveModal(true),
+                              },
+                            ]
+                          : []),
+                      ]}
+                    />
                   </td>
                 </tr>
               );
             })}
         </tbody>
       </table>
+
+      {showLeaveModal && (
+        <Modal
+          title="Leave organization"
+          confirmText="Leave organization"
+          loading={leaveOrganizationLoading}
+          onConfirm={handleLeaveOrganization}
+          onCancel={() => setShowLeaveModal(false)}
+          description="You will immediately lose access to this organization and its data."
+          confirmClassName="px-4 py-2 rounded-md text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer"
+        />
+      )}
     </div>
   );
 };

@@ -5,8 +5,8 @@ import { useQuery } from '@apollo/client/react';
 import { Building2, Calendar, Users } from 'lucide-react';
 
 import { useAppSelector } from '@/hooks';
-import { ORGANIZATION_BY_SLUG, OrganizationMemberRole } from '@/graphql';
 import { OrgMembersTab } from '@/components';
+import { ORGANIZATION_BY_SLUG } from '@/graphql';
 
 export type Tab = 'events' | 'members';
 
@@ -106,22 +106,19 @@ export const OrganizationPage = () => {
                     Events
                   </button>
 
-                  {(data.organizationBySlug?.viewerRole === OrganizationMemberRole.Admin ||
-                    data.organizationBySlug?.viewerRole === OrganizationMemberRole.Owner) && (
-                    <button
-                      type="button"
-                      disabled={activeTab === 'members'}
-                      onClick={() => setActiveTab('members')}
-                      className={`pb-3 font-medium ${
-                        activeTab === 'members'
-                          ? 'border-b-2 border-brand-500 text-brand-600 cursor-not-allowed'
-                          : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer'
-                      }`}
-                    >
-                      <Users className="w-4 h-4 inline mr-2" />
-                      Members
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    disabled={activeTab === 'members'}
+                    onClick={() => setActiveTab('members')}
+                    className={`pb-3 font-medium ${
+                      activeTab === 'members'
+                        ? 'border-b-2 border-brand-500 text-brand-600 cursor-not-allowed'
+                        : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer'
+                    }`}
+                  >
+                    <Users className="w-4 h-4 inline mr-2" />
+                    Members
+                  </button>
                 </div>
 
                 {activeTab === 'events' && (
