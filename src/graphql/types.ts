@@ -66,6 +66,15 @@ export type JoinOrganizationInput = {
   organizationId: Scalars['ID']['input'];
 };
 
+export type LeaveOrganizationInput = {
+  organizationId: Scalars['ID']['input'];
+};
+
+export type LeaveOrganizationPayload = {
+  __typename: 'LeaveOrganizationPayload';
+  success: Scalars['Boolean']['output'];
+};
+
 export type Location = {
   __typename: 'Location';
   city: Maybe<Scalars['String']['output']>;
@@ -83,6 +92,7 @@ export type Mutation = {
   createOrganization: Organization;
   deleteProfilePicture: User;
   joinOrganization: OrganizationMember;
+  leaveOrganization: LeaveOrganizationPayload;
   removeOrgMember: RemoveOrgMemberPayload;
   signUp: AuthPayload;
   updateProfilePicture: User;
@@ -99,6 +109,10 @@ export type MutationCreateOrganizationArgs = {
 
 export type MutationJoinOrganizationArgs = {
   input: JoinOrganizationInput;
+};
+
+export type MutationLeaveOrganizationArgs = {
+  input: LeaveOrganizationInput;
 };
 
 export type MutationRemoveOrgMemberArgs = {
@@ -297,6 +311,14 @@ export type JoinOrganizationMutation = {
   };
 };
 
+export type LeaveOrganizationMutationVariables = Exact<{
+  input: LeaveOrganizationInput;
+}>;
+
+export type LeaveOrganizationMutation = {
+  leaveOrganization: { __typename: 'LeaveOrganizationPayload'; success: boolean };
+};
+
 export type RemoveOrgMemberMutationVariables = Exact<{
   input: RemoveOrgMemberInput;
 }>;
@@ -464,10 +486,4 @@ export type SearchOrganizationsQuery = {
     logo: string | null;
     website: string | null;
   }>;
-};
-
-export type MemberRoleFragment = {
-  __typename: 'OrganizationMember';
-  role: OrganizationMemberRole;
-  user: { __typename: 'User'; id: string };
 };
