@@ -15,6 +15,7 @@ export const ORGANIZATION_BY_SLUG: TypedDocumentNode<
       website
       logo
       viewerRole
+      isPublic
     }
   }
 `;
