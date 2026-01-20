@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useParams } from 'react-router';
 import { useQuery } from '@apollo/client/react';
-import { Building2, Calendar, Users } from 'lucide-react';
+import { Building2, Calendar, Settings, Users } from 'lucide-react';
 
 import { useAppSelector } from '@/hooks';
-import { OrgMembersTab } from '@/components';
-import { ORGANIZATION_BY_SLUG } from '@/graphql';
+import { OrgMembersTab, OrgSettingsTab } from '@/components';
+import { ORGANIZATION_BY_SLUG, OrganizationMemberRole } from '@/graphql';
 
-export type Tab = 'events' | 'members';
+export type Tab = 'overview' | 'events' | 'members' | 'settings';
 
 export const OrganizationPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -78,7 +78,7 @@ export const OrganizationPage = () => {
                     <img
                       src={data.organizationBySlug.logo}
                       alt={data.organizationBySlug.name}
-                      className="w-16 h-16 rounded-lg object-cover border"
+                      className="w-16 h-16 rounded-lg object-cover"
                     />
                   ) : (
                     <Building2 className="w-16 h-16 text-gray-600 dark:text-gray-400" />
@@ -119,6 +119,23 @@ export const OrganizationPage = () => {
                     <Users className="w-4 h-4 inline mr-2" />
                     Members
                   </button>
+
+                  {(data.organizationBySlug.viewerRole === OrganizationMemberRole.Admin ||
+                    data.organizationBySlug.viewerRole) && (
+                    <button
+                      type="button"
+                      disabled={activeTab === 'settings'}
+                      onClick={() => setActiveTab('settings')}
+                      className={`pb-3 font-medium ${
+                        activeTab === 'settings'
+                          ? 'border-b-2 border-brand-500 text-brand-600 cursor-not-allowed'
+                          : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer'
+                      }`}
+                    >
+                      <Settings className="w-4 h-4 inline mr-2" />
+                      Settings
+                    </button>
+                  )}
                 </div>
 
                 {activeTab === 'events' && (
@@ -128,6 +145,8 @@ export const OrganizationPage = () => {
                 )}
 
                 {activeTab === 'members' && <OrgMembersTab slug={slug ?? ''} />}
+
+                {activeTab === 'settings' && <OrgSettingsTab slug={slug ?? ''} />}
               </section>
 
               <aside className="space-y-6">

@@ -441,6 +441,7 @@ export type OrganizationBySlugQuery = {
     website: string | null;
     logo: string | null;
     viewerRole: OrganizationMemberRole | null;
+    isPublic: boolean;
   };
 };
 

@@ -28,7 +28,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => (
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { uid } = useAppSelector((state) => state.auth);
-  return uid ? <>{children}</> : <Navigate to="/auth" replace />;
+  return uid ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
