@@ -1,12 +1,12 @@
+import { useQuery } from '@apollo/client/react';
+import { Building2, Calendar, Settings, Users } from 'lucide-react';
 import { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useParams } from 'react-router';
-import { useQuery } from '@apollo/client/react';
-import { Building2, Calendar, Settings, Users } from 'lucide-react';
 
-import { useAppSelector } from '@/hooks';
 import { OrgMembersTab, OrgSettingsTab } from '@/components';
 import { ORGANIZATION_BY_SLUG, OrganizationMemberRole } from '@/graphql';
+import { useAppSelector } from '@/hooks';
 
 export type Tab = 'overview' | 'events' | 'members' | 'settings';
 
@@ -121,7 +121,7 @@ export const OrganizationPage = () => {
                   </button>
 
                   {(data.organizationBySlug.viewerRole === OrganizationMemberRole.Admin ||
-                    data.organizationBySlug.viewerRole) && (
+                    data.organizationBySlug.viewerRole === OrganizationMemberRole.Owner) && (
                     <button
                       type="button"
                       disabled={activeTab === 'settings'}
@@ -146,7 +146,9 @@ export const OrganizationPage = () => {
 
                 {activeTab === 'members' && <OrgMembersTab slug={slug ?? ''} />}
 
-                {activeTab === 'settings' && <OrgSettingsTab slug={slug ?? ''} />}
+                {activeTab === 'settings' && (
+                  <OrgSettingsTab organization={data.organizationBySlug} />
+                )}
               </section>
 
               <aside className="space-y-6">
