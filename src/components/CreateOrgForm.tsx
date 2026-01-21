@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router';
 import { useMutation } from '@apollo/client/react';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
+import { CREATE_ORGANIZATION } from '@/graphql';
+import { useAppSelector } from '@/hooks';
 import { InputField } from '@/ui';
 import { uploadImage } from '@/utils';
-import { useAppSelector } from '@/hooks';
-import { CREATE_ORGANIZATION } from '@/graphql';
 import { OrganizationLogoUploader } from './OrgLogoUploader';
 
 export const CreateOrgForm = () => {
@@ -43,7 +43,6 @@ export const CreateOrgForm = () => {
       let logoUrl = null;
       if (logo) {
         logoUrl = await uploadImage(logo, `${formData.name.trim()}`, 'organizations');
-        console.log(logoUrl);
       }
       const { data } = await createOrganization({
         variables: {

@@ -95,6 +95,7 @@ export type Mutation = {
   leaveOrganization: LeaveOrganizationPayload;
   removeOrgMember: RemoveOrgMemberPayload;
   signUp: AuthPayload;
+  updateOrganization: Organization;
   updateProfilePicture: User;
   updateUser: User;
 };
@@ -121,6 +122,10 @@ export type MutationRemoveOrgMemberArgs = {
 
 export type MutationSignUpArgs = {
   input: SignUpInput;
+};
+
+export type MutationUpdateOrganizationArgs = {
+  input: UpdateOrganizationInput;
 };
 
 export type MutationUpdateProfilePictureArgs = {
@@ -234,6 +239,14 @@ export type SocialMediaInput = {
   platform: Scalars['String']['input'];
 };
 
+export type UpdateOrganizationInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  organizationId: Scalars['ID']['input'];
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateUserInput = {
   bio?: InputMaybe<Scalars['String']['input']>;
   contactInfo?: InputMaybe<ContactInfoInput>;
@@ -337,6 +350,22 @@ export type SignUpMutation = {
     uid: string;
     email: string;
     user: { __typename: 'User'; id: string; name: string; email: string; createdAt: unknown };
+  };
+};
+
+export type UpdateOrganizationMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+export type UpdateOrganizationMutation = {
+  updateOrganization: {
+    __typename: 'Organization';
+    id: string;
+    name: string;
+    slug: string;
+    website: string | null;
+    isPublic: boolean;
+    description: string | null;
   };
 };
 
