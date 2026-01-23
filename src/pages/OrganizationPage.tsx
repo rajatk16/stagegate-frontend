@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useParams } from 'react-router';
 
-import { OrgMembersTab, OrgSettingsTab } from '@/components';
+import { OrgEventsTab, OrgMembersTab, OrgSettingsTab } from '@/components';
 import { ORGANIZATION_BY_SLUG, OrganizationMemberRole } from '@/graphql';
 import { useAppSelector } from '@/hooks';
 
@@ -139,9 +139,10 @@ export const OrganizationPage = () => {
                 </div>
 
                 {activeTab === 'events' && (
-                  <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-10 text-center mt-5">
-                    <p className="text-gray-500 dark:text-gray-400">No events yet.</p>
-                  </div>
+                  <OrgEventsTab
+                    organizationId={data.organizationBySlug.id}
+                    viewerOrgRole={data.organizationBySlug.viewerRole}
+                  />
                 )}
 
                 {activeTab === 'members' && <OrgMembersTab slug={slug ?? ''} />}
