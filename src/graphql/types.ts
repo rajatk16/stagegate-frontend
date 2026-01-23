@@ -54,6 +54,26 @@ export type ContactInfoInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateEventInput = {
+  coverImage?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  eventType: EventType;
+  format: EventFormat;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  location?: InputMaybe<EventLocationInput>;
+  name: Scalars['String']['input'];
+  organizationId: Scalars['ID']['input'];
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  tagline?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateEventPayload = {
+  __typename: 'CreateEventPayload';
+  event: Event;
+};
+
 export type CreateOrganizationInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   isPublic?: InputMaybe<Scalars['Boolean']['input']>;
@@ -61,6 +81,90 @@ export type CreateOrganizationInput = {
   name: Scalars['String']['input'];
   website?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type Event = {
+  __typename: 'Event';
+  coverImage: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  endDate: Maybe<Scalars['DateTime']['output']>;
+  eventType: EventType;
+  format: EventFormat;
+  id: Scalars['ID']['output'];
+  isPublic: Scalars['Boolean']['output'];
+  location: Maybe<EventLocation>;
+  members: EventMembers;
+  name: Scalars['String']['output'];
+  organization: Organization;
+  slug: Scalars['String']['output'];
+  startDate: Maybe<Scalars['DateTime']['output']>;
+  status: EventStatus;
+  tagline: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  viewerEventRole: Maybe<EventMemberRole>;
+  viewerOrgRole: Maybe<OrganizationMemberRole>;
+  website: Maybe<Scalars['String']['output']>;
+};
+
+export type EventMembersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum EventFormat {
+  Hybrid = 'HYBRID',
+  InPerson = 'IN_PERSON',
+  Online = 'ONLINE',
+}
+
+export type EventLocation = {
+  __typename: 'EventLocation';
+  address: Maybe<Scalars['String']['output']>;
+  city: Maybe<Scalars['String']['output']>;
+  country: Maybe<Scalars['String']['output']>;
+  name: Maybe<Scalars['String']['output']>;
+};
+
+export type EventLocationInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type EventMember = {
+  __typename: 'EventMember';
+  event: Event;
+  role: EventMemberRole;
+  user: User;
+};
+
+export enum EventMemberRole {
+  Guest = 'GUEST',
+  Organizer = 'ORGANIZER',
+  Reviewer = 'REVIEWER',
+}
+
+export type EventMembers = {
+  __typename: 'EventMembers';
+  pagination: Maybe<Pagination>;
+  results: Array<EventMember>;
+};
+
+export enum EventStatus {
+  Archived = 'ARCHIVED',
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED',
+}
+
+export enum EventType {
+  Conference = 'CONFERENCE',
+  Hackathon = 'HACKATHON',
+  Meetup = 'MEETUP',
+  Other = 'OTHER',
+  Webinar = 'WEBINAR',
+  Workshop = 'WORKSHOP',
+}
 
 export type JoinOrganizationInput = {
   organizationId: Scalars['ID']['input'];
@@ -89,6 +193,7 @@ export type LocationInput = {
 export type Mutation = {
   __typename: 'Mutation';
   changeOrgMemberRole: OrganizationMember;
+  createEvent: CreateEventPayload;
   createOrganization: Organization;
   deleteProfilePicture: User;
   joinOrganization: OrganizationMember;
@@ -102,6 +207,10 @@ export type Mutation = {
 
 export type MutationChangeOrgMemberRoleArgs = {
   input: ChangeOrgMemberRoleInput;
+};
+
+export type MutationCreateEventArgs = {
+  input: CreateEventInput;
 };
 
 export type MutationCreateOrganizationArgs = {
@@ -199,11 +308,16 @@ export type Query = {
   me: Maybe<User>;
   myOrganizations: Array<Organization>;
   organizationBySlug: Organization;
+  organizationEvents: Array<Event>;
   searchOrganizations: Array<Organization>;
 };
 
 export type QueryOrganizationBySlugArgs = {
   slug: Scalars['String']['input'];
+};
+
+export type QueryOrganizationEventsArgs = {
+  organizationId: Scalars['ID']['input'];
 };
 
 export type QuerySearchOrganizationsArgs = {
@@ -472,6 +586,30 @@ export type OrganizationBySlugQuery = {
     viewerRole: OrganizationMemberRole | null;
     isPublic: boolean;
   };
+};
+
+export type OrganizationEventsQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input'];
+}>;
+
+export type OrganizationEventsQuery = {
+  organizationEvents: Array<{
+    __typename: 'Event';
+    id: string;
+    name: string;
+    slug: string;
+    eventType: EventType;
+    tagline: string | null;
+    startDate: unknown | null;
+    endDate: unknown | null;
+    website: string | null;
+    coverImage: string | null;
+    format: EventFormat;
+    status: EventStatus;
+    isPublic: boolean;
+    viewerOrgRole: OrganizationMemberRole | null;
+    viewerEventRole: EventMemberRole | null;
+  }>;
 };
 
 export type OrgMembersQueryVariables = Exact<{
