@@ -1,21 +1,22 @@
 import { Navigate, Route, Routes } from 'react-router';
 
-import { useAppSelector } from '@/hooks';
 import { Footer, Header } from '@/components';
+import { useAppSelector } from '@/hooks';
 import {
-  LoginPage,
-  LandingPage,
-  ProfilePage,
-  NotFoundPage,
-  RegisterPage,
+  CreateEventPage,
+  CreateOrganizationPage,
   DashboardPage,
   EditProfilePage,
-  OrganizationPage,
-  ResetPasswordPage,
+  EditProfilePicturePage,
   ForgotPasswordPage,
   JoinOrganizationPage,
-  EditProfilePicturePage,
-  CreateOrganizationPage,
+  LandingPage,
+  LoginPage,
+  NotFoundPage,
+  OrganizationPage,
+  ProfilePage,
+  RegisterPage,
+  ResetPasswordPage,
 } from '@/pages';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => (
@@ -157,7 +158,17 @@ function App() {
               </MainLayout>
             </ProtectedRoute>
           }
-        ></Route>
+        />
+        <Route
+          path="/events/new"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <CreateEventPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="*"
           element={

@@ -3,7 +3,7 @@ interface TableHeaderProps {
 }
 
 export const TableHeader = (props: TableHeaderProps) => (
-  <thead className="bg-gray-50 dark:bg-gray-900/50">
+  <thead className="bg-gray-50 dark:bg-gray-900/50 hidden sm:table-header-group">
     <tr>
       {props.labels.map((label, index) => (
         <th

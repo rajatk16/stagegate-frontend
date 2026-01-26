@@ -18,7 +18,6 @@ export const ORGANIZATION_EVENTS: TypedDocumentNode<
       coverImage
       format
       status
-      isPublic
       viewerOrgRole
       viewerEventRole
     }

@@ -3,10 +3,12 @@ import { Calendar, Plus } from 'lucide-react';
 import { Link } from 'react-router';
 
 import { ORGANIZATION_EVENTS, OrganizationMemberRole } from '@/graphql';
+import { EventsList } from './EventsList';
 import { OrgEventsError } from './OrgEventsError';
 import { OrgEventsSkeleton } from './OrgEventsSkeleton';
 
 interface OrgEventsTabProps {
+  slug: string;
   organizationId: string;
   viewerOrgRole: OrganizationMemberRole | null;
 }
@@ -23,16 +25,17 @@ export const OrgEventsTab = (props: OrgEventsTabProps) => {
     props.viewerOrgRole === OrganizationMemberRole.Owner ||
     props.viewerOrgRole === OrganizationMemberRole.Admin;
   return (
-    <div className="mt-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium text-gray-900 dark:text-white">Events</h2>
-        {canCreateEvent && !loading && !error && events.length !== 0 && (
+    <div className="mt-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-row gap-3 sm:flex-row sm:items-center justify-between">
+        <h2 className="text-lg sm:text-xl font-medium text-gray-900 dark:text-white">Events</h2>
+
+        {canCreateEvent && events.length > 0 && !loading && !error && (
           <Link
-            to={`/events/new?org=${props.organizationId}`}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-medium shadow transition-all hover:shadow-md"
+            to={`/events/new?org=${props.slug}`}
+            className="inline-flex items-center justify-center gap-2 px-3 py-2 sm:px-4 rounded-md bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium shadow transition-all hover:shadow-md self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
-            Create Event
+            <span className="hidden sm:inline">Create Event</span>
           </Link>
         )}
       </div>
@@ -42,8 +45,8 @@ export const OrgEventsTab = (props: OrgEventsTabProps) => {
       {!loading && error && <OrgEventsError />}
 
       {!loading && !error && events.length === 0 && (
-        <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-10 text-center bg-white dark:bg-gray-800">
-          <Calendar className="mx-auto mb-4 w-10 h-10 text-gray-400" />
+        <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-6 sm:p-10 text-center bg-white dark:bg-gray-800">
+          <Calendar className="mx-auto mb-3 sm:mb-4 w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
           <h3 className="font-medium text-gray-800 dark:text-gray-200">No events yet.</h3>
           <p className="mt-1 text-sm text-gray-500">
             {canCreateEvent
@@ -52,8 +55,8 @@ export const OrgEventsTab = (props: OrgEventsTabProps) => {
           </p>
           {canCreateEvent && (
             <Link
-              to={`/events/new?org=${props.organizationId}`}
-              className="inline-flex items-center justify-center gap-2 mt-5 px-5 py-2.5 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-medium shadow transtion-all hover:shadow-md"
+              to={`/events/new?org=${props.slug}`}
+              className="inline-flex items-center justify-center gap-2 mt-5 px-5 py-2.5 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-medium shadow transition-all hover:shadow-md"
             >
               <Plus className="w-4 h-4" />
               Create Event
@@ -61,6 +64,7 @@ export const OrgEventsTab = (props: OrgEventsTabProps) => {
           )}
         </div>
       )}
+      {!loading && !error && events.length > 0 && <EventsList events={events} />}
     </div>
   );
 };

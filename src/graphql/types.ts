@@ -18,7 +18,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean };
   Int: { input: number; output: number };
   Float: { input: number; output: number };
-  DateTime: { input: unknown; output: unknown };
+  DateTime: { input: string; output: string };
 };
 
 export type AuthPayload = {
@@ -60,7 +60,6 @@ export type CreateEventInput = {
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
   eventType: EventType;
   format: EventFormat;
-  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
   location?: InputMaybe<EventLocationInput>;
   name: Scalars['String']['input'];
   organizationId: Scalars['ID']['input'];
@@ -91,7 +90,6 @@ export type Event = {
   eventType: EventType;
   format: EventFormat;
   id: Scalars['ID']['output'];
-  isPublic: Scalars['Boolean']['output'];
   location: Maybe<EventLocation>;
   members: EventMembers;
   name: Scalars['String']['output'];
@@ -397,6 +395,17 @@ export type ChangeOrgMemberRoleMutation = {
   };
 };
 
+export type CreateEventMutationVariables = Exact<{
+  input: CreateEventInput;
+}>;
+
+export type CreateEventMutation = {
+  createEvent: {
+    __typename: 'CreateEventPayload';
+    event: { __typename: 'Event'; id: string; name: string; slug: string };
+  };
+};
+
 export type CreateOrganizationMutationVariables = Exact<{
   input: CreateOrganizationInput;
 }>;
@@ -410,8 +419,8 @@ export type CreateOrganizationMutation = {
     description: string | null;
     website: string | null;
     logo: string | null;
-    createdAt: unknown;
-    updatedAt: unknown;
+    createdAt: string;
+    updatedAt: string;
     owner: { __typename: 'User'; id: string; name: string; email: string };
   };
 };
@@ -463,7 +472,7 @@ export type SignUpMutation = {
     __typename: 'AuthPayload';
     uid: string;
     email: string;
-    user: { __typename: 'User'; id: string; name: string; email: string; createdAt: unknown };
+    user: { __typename: 'User'; id: string; name: string; email: string; createdAt: string };
   };
 };
 
@@ -499,11 +508,11 @@ export type UpdateUserMutation = {
   updateUser: {
     __typename: 'User';
     bio: string | null;
-    createdAt: unknown;
+    createdAt: string;
     email: string;
     id: string;
     name: string;
-    updatedAt: unknown;
+    updatedAt: string;
     contactInfo: {
       __typename: 'ContactInfo';
       phone: string | null;
@@ -532,8 +541,8 @@ export type MeQuery = {
   me: {
     __typename: 'User';
     bio: string | null;
-    createdAt: unknown;
-    updatedAt: unknown;
+    createdAt: string;
+    updatedAt: string;
     email: string;
     id: string;
     name: string;
@@ -600,13 +609,12 @@ export type OrganizationEventsQuery = {
     slug: string;
     eventType: EventType;
     tagline: string | null;
-    startDate: unknown | null;
-    endDate: unknown | null;
+    startDate: string | null;
+    endDate: string | null;
     website: string | null;
     coverImage: string | null;
     format: EventFormat;
     status: EventStatus;
-    isPublic: boolean;
     viewerOrgRole: OrganizationMemberRole | null;
     viewerEventRole: EventMemberRole | null;
   }>;

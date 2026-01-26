@@ -1,5 +1,6 @@
-import { DropDown } from '@/ui';
 import { OrganizationMemberRole } from '@/graphql';
+import { Badge, DropDown } from '@/ui';
+import { labelize, ORG_MEMBER_ROLE_STYLES } from '@/utils';
 
 interface MemberRoleCellProps {
   loading: boolean;
@@ -34,9 +35,7 @@ export const MemberRoleCell = (props: MemberRoleCellProps) => (
         options={ROLE_OPTIONS.filter((o) => o.value !== OrganizationMemberRole.Owner)}
       />
     ) : (
-      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
-        {props.role}
-      </span>
+      <Badge label={labelize(props.role)} className={ORG_MEMBER_ROLE_STYLES[props.role]} />
     )}
   </td>
 );
