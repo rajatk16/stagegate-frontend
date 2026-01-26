@@ -43,7 +43,7 @@ export const OrganizationPage = () => {
                 </div>
               </div>
 
-              <div className="flex gap-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex gap-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto no-scrollbar">
                 <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
                 <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
               </div>
@@ -73,22 +73,19 @@ export const OrganizationPage = () => {
           {!loading && !error && data?.organizationBySlug && (
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
               <section>
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-3 mb-5">
                   {data.organizationBySlug?.logo ? (
                     <img
                       src={data.organizationBySlug.logo}
                       alt={data.organizationBySlug.name}
-                      className="w-16 h-16 rounded-lg object-cover"
+                      className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover"
                     />
                   ) : (
-                    <Building2 className="w-16 h-16 text-gray-600 dark:text-gray-400" />
+                    <Building2 className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 dark:text-gray-400" />
                   )}
-
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {data.organizationBySlug.name}
-                    </h1>
-                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                    {data.organizationBySlug.name}
+                  </h1>
                 </div>
 
                 <div className="flex gap-6 border-b border-gray-200 dark:border-gray-700">
@@ -96,7 +93,7 @@ export const OrganizationPage = () => {
                     type="button"
                     disabled={activeTab === 'events'}
                     onClick={() => setActiveTab('events')}
-                    className={`pb-3 font-medium ${
+                    className={`pb-3 px-1 font-medium whitespace-nowrap ${
                       activeTab === 'events'
                         ? 'border-b-2 border-brand-500 text-brand-600 cursor-not-allowed'
                         : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer'
@@ -110,7 +107,7 @@ export const OrganizationPage = () => {
                     type="button"
                     disabled={activeTab === 'members'}
                     onClick={() => setActiveTab('members')}
-                    className={`pb-3 font-medium ${
+                    className={`pb-3 px-1 font-medium whitespace-nowrap ${
                       activeTab === 'members'
                         ? 'border-b-2 border-brand-500 text-brand-600 cursor-not-allowed'
                         : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer'
@@ -126,7 +123,7 @@ export const OrganizationPage = () => {
                       type="button"
                       disabled={activeTab === 'settings'}
                       onClick={() => setActiveTab('settings')}
-                      className={`pb-3 font-medium ${
+                      className={`pb-3 px-1 font-medium whitespace-nowrap ${
                         activeTab === 'settings'
                           ? 'border-b-2 border-brand-500 text-brand-600 cursor-not-allowed'
                           : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer'
@@ -140,6 +137,7 @@ export const OrganizationPage = () => {
 
                 {activeTab === 'events' && (
                   <OrgEventsTab
+                    slug={slug ?? ''}
                     organizationId={data.organizationBySlug.id}
                     viewerOrgRole={data.organizationBySlug.viewerRole}
                   />
@@ -152,7 +150,7 @@ export const OrganizationPage = () => {
                 )}
               </section>
 
-              <aside className="space-y-6">
+              <aside className="hidden lg:block space-y-6">
                 {data.organizationBySlug.description && (
                   <div className="bg-white dark:bg-gray-800 rounded-xl border p-5">
                     <h3 className="font-semibold mb-2 text-white">About</h3>

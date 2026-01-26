@@ -1,4 +1,5 @@
 export * from './changeOrgMemberRole';
+export * from './createEvent';
 export * from './createOrganization';
 export * from './deleteProfilePicture';
 export * from './joinOrganization';

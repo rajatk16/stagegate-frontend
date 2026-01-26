@@ -32,7 +32,7 @@ export const InputField = ({
   description,
   disabled = false,
   className,
-  autoComplete,
+  autoComplete = 'off',
 }: InputFieldProps) => {
   const generatedId = useId();
   const inputId = id || generatedId;

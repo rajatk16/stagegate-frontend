@@ -1,7 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 import { Loader2, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
 
 import {
   OrganizationMemberRole,
@@ -18,7 +17,6 @@ interface OrgSettingsTabProps {
 }
 
 export const OrgSettingsTab = (props: OrgSettingsTabProps) => {
-  const navigate = useNavigate();
   const { token } = useAppSelector((state) => state.auth);
 
   const isOwner = props.organization.viewerRole === OrganizationMemberRole.Owner;
@@ -74,7 +72,7 @@ export const OrgSettingsTab = (props: OrgSettingsTabProps) => {
       });
 
       if (data?.updateOrganization) {
-        navigate(`/organizations/${props.organization.slug}`);
+        window.location.reload();
       } else {
         setError('Failed to update organization settings. Please try again.');
       }

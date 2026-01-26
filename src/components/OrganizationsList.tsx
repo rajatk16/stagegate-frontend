@@ -1,8 +1,10 @@
-import { Link } from 'react-router';
+import { Badge } from '@/ui';
 import { motion } from 'framer-motion';
 import { ArrowRight, Building2, Globe } from 'lucide-react';
+import { Link } from 'react-router';
 
 import { OrganizationMemberRole } from '@/graphql';
+import { labelize, ORG_MEMBER_ROLE_STYLES } from '@/utils';
 
 interface OrganizationsListProps {
   organizations: {
@@ -46,23 +48,12 @@ export const OrganizationsList = (props: OrganizationsListProps) => {
             </div>
             <div className="min-w-0">
               <div className="flex items-center justify-center gap-2">
-                <p className="text-semibold text-gray-800 dark:text-gray-200 truncate">
-                  {org.name}
-                </p>
-                {org.viewerRole === OrganizationMemberRole.Owner && (
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200 border border-brand-200 dark:border-brand-700">
-                    Owner
-                  </span>
-                )}
-                {org.viewerRole === OrganizationMemberRole.Admin && (
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-700">
-                    Admin
-                  </span>
-                )}
-                {org.viewerRole === OrganizationMemberRole.Member && (
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 border border-green-200 dark:border-green-700">
-                    Member
-                  </span>
+                <p className="text-semibold text-gray-800 dark:text-gray-200">{org.name}</p>
+                {org.viewerRole && (
+                  <Badge
+                    label={labelize(org.viewerRole)}
+                    className={ORG_MEMBER_ROLE_STYLES[org.viewerRole]}
+                  />
                 )}
               </div>
             </div>
