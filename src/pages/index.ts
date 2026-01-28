@@ -3,6 +3,7 @@ export * from './CreateOrganizationPage';
 export * from './DashboardPage';
 export * from './EditProfilePage';
 export * from './EditProfilePicturePage';
+export * from './EventOverviewPage';
 export * from './ForgotPasswordPage';
 export * from './JoinOrganizationPage';
 export * from './LandingPage';

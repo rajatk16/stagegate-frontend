@@ -100,7 +100,7 @@ export const CreateEventForm = (props: CreateEventFormProps) => {
 
       if (res.data?.createEvent?.event) {
         const slug = res.data.createEvent.event.slug;
-        navigate(`/events/${slug}`);
+        navigate(`/organizations/${props.data.organizationBySlug.slug}/events/${slug}`);
       }
     } catch (error: unknown) {
       setFormError((error as Error).message || 'Failed to create event. Please try again.');
