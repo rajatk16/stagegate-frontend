@@ -6,4 +6,6 @@ export * from './DropZone';
 export * from './InputField';
 export * from './Modal';
 export * from './ReadOnlyField';
+export * from './TabButton';
 export * from './TableHeader';
+export * from './Tabs';

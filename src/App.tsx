@@ -8,6 +8,7 @@ import {
   DashboardPage,
   EditProfilePage,
   EditProfilePicturePage,
+  EventOverviewPage,
   ForgotPasswordPage,
   JoinOrganizationPage,
   LandingPage,
@@ -155,6 +156,16 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <OrganizationPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/organizations/:orgSlug/events/:eventSlug"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <EventOverviewPage />
               </MainLayout>
             </ProtectedRoute>
           }

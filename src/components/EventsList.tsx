@@ -12,6 +12,7 @@ import {
 } from '@/utils';
 
 interface EventsListProps {
+  orgSlug: string;
   events: OrganizationEventsQuery['organizationEvents'];
 }
 
@@ -78,7 +79,7 @@ export const EventsList = (props: EventsListProps) => {
             </div>
 
             <Link
-              to={`/events/${event.slug}`}
+              to={`/organizations/${props.orgSlug}/events/${event.slug}`}
               className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium shadow transition-all hover:shadow-md w-full sm:w-auto shrink-0"
             >
               Open

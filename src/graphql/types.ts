@@ -303,11 +303,17 @@ export type Pagination = {
 export type Query = {
   __typename: 'Query';
   authStatus: Maybe<AuthStatus>;
+  eventBySlug: Event;
   me: Maybe<User>;
   myOrganizations: Array<Organization>;
   organizationBySlug: Organization;
   organizationEvents: Array<Event>;
   searchOrganizations: Array<Organization>;
+};
+
+export type QueryEventBySlugArgs = {
+  eventSlug: Scalars['String']['input'];
+  organizationSlug: Scalars['String']['input'];
 };
 
 export type QueryOrganizationBySlugArgs = {
@@ -533,6 +539,30 @@ export type AuthStatusQueryVariables = Exact<{ [key: string]: never }>;
 
 export type AuthStatusQuery = {
   authStatus: { __typename: 'AuthStatus'; emailVerified: boolean } | null;
+};
+
+export type EventBySlugQueryVariables = Exact<{
+  orgSlug: Scalars['String']['input'];
+  eventSlug: Scalars['String']['input'];
+}>;
+
+export type EventBySlugQuery = {
+  eventBySlug: {
+    __typename: 'Event';
+    id: string;
+    name: string;
+    slug: string;
+    tagline: string | null;
+    status: EventStatus;
+    eventType: EventType;
+    format: EventFormat;
+    viewerEventRole: EventMemberRole | null;
+    description: string | null;
+    startDate: string | null;
+    endDate: string | null;
+    website: string | null;
+    organization: { __typename: 'Organization'; id: string; name: string };
+  };
 };
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>;

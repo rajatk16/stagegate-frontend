@@ -64,7 +64,9 @@ export const OrgEventsTab = (props: OrgEventsTabProps) => {
           )}
         </div>
       )}
-      {!loading && !error && events.length > 0 && <EventsList events={events} />}
+      {!loading && !error && events.length > 0 && (
+        <EventsList orgSlug={props.slug} events={events} />
+      )}
     </div>
   );
 };
