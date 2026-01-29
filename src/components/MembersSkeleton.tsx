@@ -1,4 +1,4 @@
-export const OrgMembersSkeleton = () =>
+export const MembersSkeleton = () =>
   Array.from({ length: 4 }).map((_, i) => (
     <tr key={i} className="animate-pulse">
       <td className="px-5 py-4">

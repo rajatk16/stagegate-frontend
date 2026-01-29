@@ -2,8 +2,8 @@ import { OrganizationMemberRole } from '@/graphql';
 import { Badge, DropDown } from '@/ui';
 import { labelize, ORG_MEMBER_ROLE_STYLES } from '@/utils';
 
-interface MemberRoleCellProps {
-  loading: boolean;
+interface OrgMemberRoleCellProps {
+  disabled: boolean;
   canChangeRole: boolean;
   role: OrganizationMemberRole;
   onRoleChange: (role: OrganizationMemberRole) => void;
@@ -25,12 +25,12 @@ const ROLE_OPTIONS = [
   },
 ];
 
-export const MemberRoleCell = (props: MemberRoleCellProps) => (
+export const OrgMemberRoleCell = (props: OrgMemberRoleCellProps) => (
   <td className="px-5 py-4 text-center">
     {props.canChangeRole ? (
       <DropDown
         value={props.role}
-        disabled={props.loading}
+        disabled={props.disabled}
         onChange={props.onRoleChange}
         options={ROLE_OPTIONS.filter((o) => o.value !== OrganizationMemberRole.Owner)}
       />

@@ -1,5 +1,7 @@
-import type { EventBySlugQuery } from '@/graphql';
 import { Globe } from 'lucide-react';
+
+import type { EventBySlugQuery } from '@/graphql';
+import { EventMembersTab } from './EventMembersTab';
 
 export const EventContentLayout = ({
   activeTab,
@@ -19,9 +21,7 @@ export const EventContentLayout = ({
         </div>
       )}
       {activeTab === 'members' && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border p-6 text-gray-500">
-          Members coming soon.
-        </div>
+        <EventMembersTab eventSlug={event.slug} orgSlug={event.organization.slug} />
       )}
       {activeTab === 'settings' && (
         <div className="bg-white dark:bg-gray-800 rounded-xl border p-6 text-gray-500">

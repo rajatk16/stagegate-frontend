@@ -1,5 +1,6 @@
 export * from './authStatus.ts';
 export * from './eventBySlug.ts';
+export * from './eventMembers.ts';
 export * from './me.ts';
 export * from './myOrganizations.ts';
 export * from './organizationBySlug.ts';

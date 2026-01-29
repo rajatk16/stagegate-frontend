@@ -12,6 +12,7 @@ export const EVENT_BY_SLUG: TypedDocumentNode<EventBySlugQuery, EventBySlugQuery
         organization {
           id
           name
+          slug
         }
         tagline
         status
