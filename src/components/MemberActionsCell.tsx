@@ -1,7 +1,7 @@
 import { ActionMenu } from '@/ui';
 
 interface MemberActionsCellProps {
-  loading: boolean;
+  disabled: boolean;
   canLeaveOrganization: boolean;
   onLeaveOrganization: () => void;
   onRemoveMember: () => void;
@@ -11,7 +11,7 @@ interface MemberActionsCellProps {
 export const MemberActionsCell = (props: MemberActionsCellProps) => (
   <td className="px-5 py-4 text-center">
     <ActionMenu
-      disabled={props.loading}
+      disabled={props.disabled}
       options={[
         ...(props.canRemoveMember
           ? [{ label: 'Remove member', danger: true, onClick: props.onRemoveMember }]

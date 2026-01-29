@@ -561,7 +561,34 @@ export type EventBySlugQuery = {
     startDate: string | null;
     endDate: string | null;
     website: string | null;
-    organization: { __typename: 'Organization'; id: string; name: string };
+    organization: { __typename: 'Organization'; id: string; name: string; slug: string };
+  };
+};
+
+export type EventMembersQueryVariables = Exact<{
+  orgSlug: Scalars['String']['input'];
+  eventSlug: Scalars['String']['input'];
+}>;
+
+export type EventMembersQuery = {
+  eventBySlug: {
+    __typename: 'Event';
+    id: string;
+    viewerEventRole: EventMemberRole | null;
+    members: {
+      __typename: 'EventMembers';
+      results: Array<{
+        __typename: 'EventMember';
+        role: EventMemberRole;
+        user: {
+          __typename: 'User';
+          id: string;
+          name: string;
+          email: string;
+          profilePicture: string | null;
+        };
+      }>;
+    };
   };
 };
 
