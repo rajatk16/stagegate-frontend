@@ -198,6 +198,7 @@ export type Mutation = {
   leaveOrganization: LeaveOrganizationPayload;
   removeOrgMember: RemoveOrgMemberPayload;
   signUp: AuthPayload;
+  updateEvent: Event;
   updateOrganization: Organization;
   updateProfilePicture: User;
   updateUser: User;
@@ -229,6 +230,10 @@ export type MutationRemoveOrgMemberArgs = {
 
 export type MutationSignUpArgs = {
   input: SignUpInput;
+};
+
+export type MutationUpdateEventArgs = {
+  input: UpdateEventInput;
 };
 
 export type MutationUpdateOrganizationArgs = {
@@ -355,6 +360,20 @@ export type SocialMedia = {
 export type SocialMediaInput = {
   handle: Scalars['String']['input'];
   platform: Scalars['String']['input'];
+};
+
+export type UpdateEventInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  eventId: Scalars['ID']['input'];
+  eventType?: InputMaybe<EventType>;
+  format?: InputMaybe<EventFormat>;
+  location?: InputMaybe<EventLocationInput>;
+  organizationId: Scalars['ID']['input'];
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  status?: InputMaybe<EventStatus>;
+  tagline?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateOrganizationInput = {
@@ -562,6 +581,13 @@ export type EventBySlugQuery = {
     endDate: string | null;
     website: string | null;
     organization: { __typename: 'Organization'; id: string; name: string; slug: string };
+    location: {
+      __typename: 'EventLocation';
+      name: string | null;
+      address: string | null;
+      city: string | null;
+      country: string | null;
+    } | null;
   };
 };
 
