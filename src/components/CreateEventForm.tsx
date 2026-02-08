@@ -35,10 +35,17 @@ export const CreateEventForm = (props: CreateEventFormProps) => {
     tagline: '',
     description: props.data.organizationBySlug.description || '',
     website: props.data.organizationBySlug.website || '',
+    coverImage: '',
     eventType: EventType.Conference,
     format: EventFormat.InPerson,
     startDate: '',
     endDate: '',
+    location: {
+      name: '',
+      address: '',
+      city: '',
+      country: '',
+    },
   });
 
   const [createEvent, { loading }] = useMutation(CREATE_EVENT);
@@ -81,6 +88,14 @@ export const CreateEventForm = (props: CreateEventFormProps) => {
       return;
     }
 
+    if (
+      (form.format === EventFormat.InPerson || form.format === EventFormat.Hybrid) &&
+      !form.location.city.trim()
+    ) {
+      setFormError('Please provide at least a city for the event location.');
+      return;
+    }
+
     try {
       const res = await createEvent({
         variables: {
@@ -94,6 +109,15 @@ export const CreateEventForm = (props: CreateEventFormProps) => {
             startDate: form.startDate ? toISODate(form.startDate) : null,
             endDate: form.endDate ? toISODate(form.endDate) : null,
             website: form.website.trim() || null,
+            coverImage: form.coverImage.trim() || null,
+            location: Object.values(form.location).some((v) => v.trim())
+              ? {
+                  name: form.location.name.trim() || null,
+                  address: form.location.address.trim() || null,
+                  city: form.location.city.trim() || null,
+                  country: form.location.country.trim() || null,
+                }
+              : null,
           },
         },
       });
@@ -181,6 +205,7 @@ export const CreateEventForm = (props: CreateEventFormProps) => {
           />
         </div>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <InputField
           id="startDate"
@@ -210,10 +235,68 @@ export const CreateEventForm = (props: CreateEventFormProps) => {
             setForm((p) => ({ ...p, endDate: value }));
           }}
           placeholder="Enter the end date of the event"
+          error={
+            form.endDate && !isValidDate(form.endDate)
+              ? 'Enter a valid date in the format DD-MM-YYYY'
+              : undefined
+          }
           description="Format: DD-MM-YYYY"
           disabled={loading}
         />
       </div>
+
+      {(form.format === EventFormat.InPerson || form.format === EventFormat.Hybrid) && (
+        <div className="space-y-4">
+          <InputField
+            id="locationName"
+            type="text"
+            value={form.location.name}
+            label="Venue Name"
+            disabled={loading}
+            placeholder="Enter the name of the venue"
+            onChange={(e) =>
+              setForm((p) => ({ ...p, location: { ...p.location, name: e.target.value } }))
+            }
+          />
+
+          <InputField
+            id="address"
+            type="text"
+            value={form.location.address}
+            label="Address"
+            disabled={loading}
+            placeholder="Enter the address of the venue"
+            onChange={(e) =>
+              setForm((p) => ({ ...p, location: { ...p.location, address: e.target.value } }))
+            }
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputField
+              id="city"
+              type="text"
+              value={form.location.city}
+              label="City"
+              disabled={loading}
+              placeholder="Enter the city of the venue"
+              onChange={(e) =>
+                setForm((p) => ({ ...p, location: { ...p.location, city: e.target.value } }))
+              }
+            />
+            <InputField
+              id="country"
+              type="text"
+              value={form.location.country}
+              label="Country"
+              disabled={loading}
+              placeholder="Enter the country of the venue"
+              onChange={(e) =>
+                setForm((p) => ({ ...p, location: { ...p.location, country: e.target.value } }))
+              }
+            />
+          </div>
+        </div>
+      )}
       <InputField
         id="website"
         label="Website"

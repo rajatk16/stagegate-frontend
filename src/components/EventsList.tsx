@@ -1,15 +1,8 @@
-import { Calendar, Globe } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { Link } from 'react-router';
 
 import type { OrganizationEventsQuery } from '@/graphql';
-import { Badge } from '@/ui';
-import {
-  EVENT_ROLE_STYLES,
-  FORMAT_STYLES,
-  labelize,
-  STATUS_STYLES,
-  TYPE_STYLES,
-} from '@/utils';
+import { EventBadges } from './EventBadges';
 
 interface EventsListProps {
   orgSlug: string;
@@ -30,13 +23,6 @@ export const EventsList = (props: EventsListProps) => {
                 <p className="font-medium text-gray-900 dark:text-gray-200 truncate">
                   {event.name}
                 </p>
-                <Badge label={labelize(event.status)} className={STATUS_STYLES[event.status]} />
-                {event.viewerEventRole && (
-                  <Badge
-                    label={labelize(event.viewerEventRole)}
-                    className={EVENT_ROLE_STYLES[event.viewerEventRole]}
-                  />
-                )}
               </div>
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-sm text-gray-500 dark:text-gray-400">
                 {event.startDate && (
@@ -51,31 +37,13 @@ export const EventsList = (props: EventsListProps) => {
                     )}
                   </span>
                 )}
-
-                {event.website && (
-                  <a
-                    href={
-                      event.website.startsWith('http')
-                        ? event.website
-                        : `https://${event.website}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-brand-600 hover:underline"
-                  >
-                    <Globe className="w-4 h-4" />
-                    Website
-                  </a>
-                )}
               </div>
-
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Badge
-                  label={labelize(event.eventType)}
-                  className={TYPE_STYLES[event.eventType]}
-                />
-                <Badge label={labelize(event.format)} className={FORMAT_STYLES[event.format]} />
-              </div>
+              <EventBadges
+                status={event.status}
+                eventType={event.eventType}
+                format={event.format}
+                viewerEventRole={event.viewerEventRole}
+              />
             </div>
 
             <Link

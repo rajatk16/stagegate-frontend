@@ -23,6 +23,12 @@ export const EVENT_BY_SLUG: TypedDocumentNode<EventBySlugQuery, EventBySlugQuery
         startDate
         endDate
         website
+        location {
+          name
+          address
+          city
+          country
+        }
       }
     }
   `;

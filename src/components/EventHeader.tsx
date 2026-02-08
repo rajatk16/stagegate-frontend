@@ -27,15 +27,12 @@ export const EventHeader = (props: EventHeaderProps) => {
       {props.event.tagline && (
         <p className="text-gray-600 dark:text-gray-400">{props.event.tagline}</p>
       )}
-
-      {
-        <EventBadges
-          status={props.event.status}
-          eventType={props.event.eventType}
-          format={props.event.format}
-          viewerEventRole={props.event.viewerEventRole}
-        />
-      }
+      <EventBadges
+        status={props.event.status}
+        eventType={props.event.eventType}
+        format={props.event.format}
+        viewerEventRole={props.event.viewerEventRole}
+      />
     </div>
   );
 };

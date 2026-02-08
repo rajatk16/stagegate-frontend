@@ -23,25 +23,24 @@ export * from './OrganizationsList';
 // Badges
 export * from './EventBadges';
 
-// Event Overview Page
+// Event Page
 export * from './EventContentLayout';
 export * from './EventHeader';
-export * from './EventNotFound';
-export * from './EventPageShell';
-export * from './EventTabs';
-
-// Members Tab
 export * from './EventMemberRoleCell';
 export * from './EventMemberRow';
 export * from './EventMembersTab';
 export * from './EventMembersTable';
+export * from './EventNotFound';
+export * from './EventPageShell';
+export * from './EventSettingsTab';
+export * from './EventTabs';
 export * from './MemberActionsCell';
 export * from './MemberInfoCell';
-export * from './OrgMemberRoleCell';
 
 // Skeletons
 export * from './EventOverviewSkeleton';
 export * from './MembersSkeleton';
+export * from './OrganizationOverviewSkeleton';
 export * from './OrganizationsSkeleton';
 export * from './OrgEventsSkeleton';
 export * from './OrgSettingsSkeleton';
@@ -49,7 +48,13 @@ export * from './OrgSettingsSkeleton';
 // Organization Page
 export * from './EventsList';
 export * from './GeneralOrgSettings';
+export * from './OrganizationContentLayout';
+export * from './OrganizationHeader';
+export * from './OrganizationNotFound';
+export * from './OrganizationPageShell';
+export * from './OrganizationTabs';
 export * from './OrgEventsTab';
+export * from './OrgMemberRoleCell';
 export * from './OrgMemberRow';
 export * from './OrgMembersTab';
 export * from './OrgMembersTable';
