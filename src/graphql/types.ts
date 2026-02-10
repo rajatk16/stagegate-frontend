@@ -363,6 +363,7 @@ export type SocialMediaInput = {
 };
 
 export type UpdateEventInput = {
+  coverImage?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
   eventId: Scalars['ID']['input'];
@@ -609,6 +610,7 @@ export type EventBySlugQuery = {
     startDate: string | null;
     endDate: string | null;
     website: string | null;
+    coverImage: string | null;
     organization: { __typename: 'Organization'; id: string; name: string; slug: string };
     location: {
       __typename: 'EventLocation';

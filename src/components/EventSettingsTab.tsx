@@ -20,6 +20,7 @@ import {
   toDDMMYYYY,
   toISODate,
   TYPE_STYLES,
+  uploadImage,
 } from '@/utils';
 import { useMutation } from '@apollo/client/react';
 import { EventCoverImageUploader } from './EventCoverImageUploader';
@@ -123,6 +124,15 @@ export const EventSettingsTab = (props: EventSettingsTabProps) => {
     }
 
     try {
+      let coverImageUrl = null;
+      if (coverImage) {
+        coverImageUrl = await uploadImage(
+          coverImage,
+          'cover',
+          `organizations/${props.event.organization.name}/events/${props.event.name}`,
+        );
+        updateInput.coverImage = coverImageUrl;
+      }
       const res = await updateEvent({
         variables: {
           input: updateInput,

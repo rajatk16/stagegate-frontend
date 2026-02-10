@@ -1,4 +1,4 @@
-import { Calendar, Globe, MapPin } from 'lucide-react';
+import { Globe, MapPin } from 'lucide-react';
 
 import { EventFormat, type EventBySlugQuery } from '@/graphql';
 import { EventMembersTab } from './EventMembersTab';
@@ -11,7 +11,6 @@ export const EventContentLayout = ({
   activeTab: string;
   event: EventBySlugQuery['eventBySlug'];
 }) => {
-  const hasDates = event.startDate || event.endDate;
   const hasLocation = event.location && Object.values(event.location).some(Boolean);
 
   return (
@@ -34,24 +33,6 @@ export const EventContentLayout = ({
       </section>
 
       <aside className="space-y-6">
-        {hasDates && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              <h4 className="font-semibold text-gray-900 dark:text-white">Dates</h4>
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {event.startDate && new Date(event.startDate).toLocaleDateString()}
-              {event.endDate && (
-                <>
-                  <span className="mx-1 text-gray-400">-</span>
-                  {new Date(event.endDate).toLocaleDateString()}
-                </>
-              )}
-            </p>
-          </div>
-        )}
-
         {(event.format === EventFormat.InPerson || event.format === EventFormat.Hybrid) &&
           hasLocation && (
             <div className="bg-white dark:bg-gray-800 rounded-xl border p-5">

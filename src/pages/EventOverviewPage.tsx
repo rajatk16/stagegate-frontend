@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client/react';
 import { useState } from 'react';
 import { useParams } from 'react-router';
 
-import { EventContentLayout, EventHeader, EventPageShell, EventTabs } from '@/components';
+import { EventContentLayout, EventHero, EventPageShell, EventTabs } from '@/components';
 import { EVENT_BY_SLUG } from '@/graphql';
 
 export const EventOverviewPage = () => {
@@ -26,7 +26,7 @@ export const EventOverviewPage = () => {
       <EventPageShell loading={loading} error={error} orgSlug={orgSlug!} event={event}>
         {(event) => (
           <>
-            <EventHeader event={event} orgSlug={orgSlug!} />
+            <EventHero event={event} />
 
             <EventTabs activeTab={activeTab} onChange={setActiveTab} event={event} />
 

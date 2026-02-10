@@ -29,6 +29,7 @@ export const EVENT_BY_SLUG: TypedDocumentNode<EventBySlugQuery, EventBySlugQuery
           city
           country
         }
+        coverImage
       }
     }
   `;
