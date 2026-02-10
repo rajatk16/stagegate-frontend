@@ -12,6 +12,7 @@ export * from './CreateEventForm';
 export * from './CreateOrgForm';
 export * from './EditProfileForm';
 export * from './EditSocialMedia';
+export * from './EventCoverImageUploader';
 export * from './LoginForm';
 export * from './OrgLogoUploader';
 export * from './RegisterForm';
@@ -36,7 +37,6 @@ export * from './EventSettingsTab';
 export * from './EventTabs';
 export * from './MemberActionsCell';
 export * from './MemberInfoCell';
-
 // Skeletons
 export * from './EventOverviewSkeleton';
 export * from './MembersSkeleton';

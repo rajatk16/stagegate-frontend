@@ -1,6 +1,6 @@
 import { Calendar, Globe, MapPin } from 'lucide-react';
 
-import type { EventBySlugQuery } from '@/graphql';
+import { EventFormat, type EventBySlugQuery } from '@/graphql';
 import { EventMembersTab } from './EventMembersTab';
 import { EventSettingsTab } from './EventSettingsTab';
 
@@ -52,24 +52,25 @@ export const EventContentLayout = ({
           </div>
         )}
 
-        {hasLocation && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border p-5">
-            <div className="flex items-center gap-2 mb-2 text-gray-900 dark:text-white">
-              <MapPin className="w-4 h-4 text-gray-500" />
-              <h4 className="font-semibold text-gray-900 dark:text-white">Location</h4>
-            </div>
+        {(event.format === EventFormat.InPerson || event.format === EventFormat.Hybrid) &&
+          hasLocation && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border p-5">
+              <div className="flex items-center gap-2 mb-2 text-gray-900 dark:text-white">
+                <MapPin className="w-4 h-4 text-gray-500" />
+                <h4 className="font-semibold text-gray-900 dark:text-white">Location</h4>
+              </div>
 
-            <div className="text-sm text-gray-600 dark:text-gray-400 space-y-0.5">
-              {event.location?.name && <p>{event.location.name}</p>}
-              {event.location?.address && <p>{event.location.address}</p>}
-              {(event.location?.city || event.location?.country) && (
-                <p>
-                  {[event.location?.city, event.location?.country].filter(Boolean).join(', ')}
-                </p>
-              )}
+              <div className="text-sm text-gray-600 dark:text-gray-400 space-y-0.5">
+                {event.location?.name && <p>{event.location.name}</p>}
+                {event.location?.address && <p>{event.location.address}</p>}
+                {(event.location?.city || event.location?.country) && (
+                  <p>
+                    {[event.location?.city, event.location?.country].filter(Boolean).join(', ')}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
         {event.website && (
           <div className="bg-white dark:bg-gray-800 rounded-xl border p-5">
             <a

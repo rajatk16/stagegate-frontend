@@ -501,6 +501,35 @@ export type SignUpMutation = {
   };
 };
 
+export type UpdateEventMutationVariables = Exact<{
+  input: UpdateEventInput;
+}>;
+
+export type UpdateEventMutation = {
+  updateEvent: {
+    __typename: 'Event';
+    id: string;
+    name: string;
+    slug: string;
+    eventType: EventType;
+    description: string | null;
+    tagline: string | null;
+    startDate: string | null;
+    endDate: string | null;
+    website: string | null;
+    coverImage: string | null;
+    format: EventFormat;
+    status: EventStatus;
+    location: {
+      __typename: 'EventLocation';
+      name: string | null;
+      address: string | null;
+      city: string | null;
+      country: string | null;
+    } | null;
+  };
+};
+
 export type UpdateOrganizationMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
