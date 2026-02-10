@@ -56,7 +56,11 @@ export const OrgSettingsTab = (props: OrgSettingsTabProps) => {
     try {
       let logoUrl = null;
       if (logoFile) {
-        logoUrl = await uploadImage(logoFile, props.organization.name, 'organizations');
+        logoUrl = await uploadImage(
+          logoFile,
+          'logo',
+          `organizations/${props.organization.name}`,
+        );
       }
 
       const { data } = await updateOrganization({

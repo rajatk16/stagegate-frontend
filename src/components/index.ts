@@ -26,7 +26,7 @@ export * from './EventBadges';
 
 // Event Page
 export * from './EventContentLayout';
-export * from './EventHeader';
+export * from './EventHero';
 export * from './EventMemberRoleCell';
 export * from './EventMemberRow';
 export * from './EventMembersTab';
