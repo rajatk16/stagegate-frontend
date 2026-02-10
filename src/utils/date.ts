@@ -14,3 +14,17 @@ export const toISODate = (value: string): string | null => {
   const [dd, mm, yyyy] = value.split('-');
   return new Date(`${yyyy}-${mm}-${dd}T00:00:00.000Z`).toISOString();
 };
+
+export const toDDMMYYYY = (value?: string | Date | null): string => {
+  if (!value) return '';
+
+  const date = typeof value === 'string' ? new Date(value) : value;
+
+  if (Number.isNaN(date.getTime())) return '';
+
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const year = String(date.getUTCFullYear());
+
+  return `${day}-${month}-${year}`;
+};

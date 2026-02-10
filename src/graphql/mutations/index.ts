@@ -6,6 +6,7 @@ export * from './joinOrganization';
 export * from './leaveOrganization';
 export * from './removeOrgMember';
 export * from './signUp';
+export * from './updateEvent.ts';
 export * from './updateOrganization';
 export * from './updateProfilePicture';
 export * from './updateUser';

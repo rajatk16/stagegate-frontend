@@ -1,30 +1,15 @@
 import { useMutation } from '@apollo/client/react';
-import { Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { CREATE_EVENT, EventFormat, EventType, type OrganizationBySlugQuery } from '@/graphql';
 import { DropDown, InputField } from '@/ui';
-import { isValidDate, toISODate } from '@/utils';
+import { EVENT_FORMAT_OPTIONS, EVENT_TYPE_OPTIONS, isValidDate, toISODate } from '@/utils';
 
 interface CreateEventFormProps {
   data: OrganizationBySlugQuery;
 }
-
-const EVENT_TYPE_OPTIONS = [
-  { value: EventType.Conference, label: 'Conference' },
-  { value: EventType.Meetup, label: 'Meetup' },
-  { value: EventType.Workshop, label: 'Workshop' },
-  { value: EventType.Hackathon, label: 'Hackathon' },
-  { value: EventType.Webinar, label: 'Webinar' },
-  { value: EventType.Other, label: 'Other' },
-];
-
-const EVENT_FORMAT_OPTIONS = [
-  { value: EventFormat.InPerson, label: 'In Person' },
-  { value: EventFormat.Online, label: 'Online' },
-  { value: EventFormat.Hybrid, label: 'Hybrid' },
-];
 
 export const CreateEventForm = (props: CreateEventFormProps) => {
   const navigate = useNavigate();
@@ -134,8 +119,9 @@ export const CreateEventForm = (props: CreateEventFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {formError && (
-        <div className="p-3 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center">
-          {formError}
+        <div className="flex items-center p-3 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center">
+          <AlertCircle className="w-4 h-4" />
+          <span className="ml-2">{formError}</span>
         </div>
       )}
 
