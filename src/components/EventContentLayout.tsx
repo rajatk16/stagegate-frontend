@@ -2,6 +2,7 @@ import { Globe, MapPin } from 'lucide-react';
 
 import { EventFormat, type EventBySlugQuery } from '@/graphql';
 import { EventMembersTab } from './EventMembersTab';
+import { EventOverviewTab } from './EventOverviewTab';
 import { EventSettingsTab } from './EventSettingsTab';
 
 export const EventContentLayout = ({
@@ -16,16 +17,7 @@ export const EventContentLayout = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
       <section>
-        {activeTab === 'overview' && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border p-6">
-            <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">
-              About this event
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {event.description || 'No description provided.'}
-            </p>
-          </div>
-        )}
+        {activeTab === 'overview' && <EventOverviewTab event={event} />}
         {activeTab === 'members' && (
           <EventMembersTab eventSlug={event.slug} orgSlug={event.organization.slug} />
         )}

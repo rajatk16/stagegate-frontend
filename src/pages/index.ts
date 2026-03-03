@@ -5,6 +5,7 @@ export * from './EditProfilePage';
 export * from './EditProfilePicturePage';
 export * from './EventOverviewPage';
 export * from './ForgotPasswordPage';
+export * from './ImportProposalsPage';
 export * from './JoinOrganizationPage';
 export * from './LandingPage';
 export * from './LoginPage';

@@ -10,6 +10,7 @@ import {
   EditProfilePicturePage,
   EventOverviewPage,
   ForgotPasswordPage,
+  ImportProposalsPage,
   JoinOrganizationPage,
   LandingPage,
   LoginPage,
@@ -166,6 +167,16 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <EventOverviewPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/organizations/:orgSlug/events/:eventSlug/import-proposals"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <ImportProposalsPage />
               </MainLayout>
             </ProtectedRoute>
           }

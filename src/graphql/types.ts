@@ -35,6 +35,20 @@ export type AuthStatus = {
   uid: Scalars['ID']['output'];
 };
 
+export type BulkCreateProposalsInput = {
+  eventId: Scalars['ID']['input'];
+  format: ProposalFormat;
+  organizationId: Scalars['ID']['input'];
+  proposals: Array<ProposalInput>;
+};
+
+export type BulkCreateProposalsPayload = {
+  __typename: 'BulkCreateProposalsPayload';
+  created: Scalars['Int']['output'];
+  skipped: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type ChangeOrgMemberRoleInput = {
   organizationId: Scalars['ID']['input'];
   role: OrganizationMemberRole;
@@ -190,6 +204,7 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename: 'Mutation';
+  bulkCreateProposals: BulkCreateProposalsPayload;
   changeOrgMemberRole: OrganizationMember;
   createEvent: CreateEventPayload;
   createOrganization: Organization;
@@ -202,6 +217,10 @@ export type Mutation = {
   updateOrganization: Organization;
   updateProfilePicture: User;
   updateUser: User;
+};
+
+export type MutationBulkCreateProposalsArgs = {
+  input: BulkCreateProposalsInput;
 };
 
 export type MutationChangeOrgMemberRoleArgs = {
@@ -305,6 +324,59 @@ export type Pagination = {
   pageSize: Maybe<Scalars['Int']['output']>;
 };
 
+export type Proposal = {
+  __typename: 'Proposal';
+  abstract: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  duration: Maybe<Scalars['Int']['output']>;
+  event: Event;
+  format: ProposalFormat;
+  id: Scalars['ID']['output'];
+  organization: Organization;
+  speaker: User;
+  status: ProposalStatus;
+  submittedAt: Maybe<Scalars['DateTime']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  viewerRoles: Maybe<Array<ProposalViewerRole>>;
+};
+
+export enum ProposalFormat {
+  LightningTalk = 'LIGHTNING_TALK',
+  Other = 'OTHER',
+  Panel = 'PANEL',
+  Talk = 'TALK',
+  Workshop = 'WORKSHOP',
+}
+
+export type ProposalInput = {
+  abstract: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['Int']['input']>;
+  speakerBio?: InputMaybe<Scalars['String']['input']>;
+  speakerContactInfo?: InputMaybe<ContactInfoInput>;
+  speakerEmail: Scalars['String']['input'];
+  speakerLocation?: InputMaybe<LocationInput>;
+  speakerName: Scalars['String']['input'];
+  speakerOccupation?: InputMaybe<OccupationInput>;
+  title: Scalars['String']['input'];
+};
+
+export enum ProposalStatus {
+  Accepted = 'ACCEPTED',
+  Draft = 'DRAFT',
+  Rejected = 'REJECTED',
+  Submitted = 'SUBMITTED',
+  Withdrawn = 'WITHDRAWN',
+}
+
+export enum ProposalViewerRole {
+  Organizer = 'ORGANIZER',
+  Reviewer = 'REVIEWER',
+  Speaker = 'SPEAKER',
+}
+
 export type Query = {
   __typename: 'Query';
   authStatus: Maybe<AuthStatus>;
@@ -407,6 +479,19 @@ export type User = {
   profilePicture: Maybe<Scalars['String']['output']>;
   socialMedia: Maybe<Array<SocialMedia>>;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type BulkCreateProposalsMutationVariables = Exact<{
+  input: BulkCreateProposalsInput;
+}>;
+
+export type BulkCreateProposalsMutation = {
+  bulkCreateProposals: {
+    __typename: 'BulkCreateProposalsPayload';
+    total: number;
+    created: number;
+    skipped: number;
+  };
 };
 
 export type ChangeOrgMemberRoleMutationVariables = Exact<{

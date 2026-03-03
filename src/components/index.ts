@@ -32,6 +32,7 @@ export * from './EventMemberRow';
 export * from './EventMembersTab';
 export * from './EventMembersTable';
 export * from './EventNotFound';
+export * from './EventOverviewTab';
 export * from './EventPageShell';
 export * from './EventSettingsTab';
 export * from './EventTabs';
@@ -70,3 +71,7 @@ export * from './LeaveOrganizationModal';
 // Error
 export * from './OrgEventsError';
 export * from './OrgSettingsError';
+
+// Import Proposals
+export * from './ImportProposalStepIndicator';
+export * from './PreviewProposalsTable';
