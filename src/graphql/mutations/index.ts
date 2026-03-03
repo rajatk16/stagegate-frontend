@@ -1,3 +1,4 @@
+export * from './bulkCreateProposals';
 export * from './changeOrgMemberRole';
 export * from './createEvent';
 export * from './createOrganization';
