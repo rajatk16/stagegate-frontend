@@ -1,8 +1,21 @@
+import { ProposalFormat } from '@/graphql';
+import { DropDown } from '@/ui';
 import { Upload } from 'lucide-react';
 
 interface UploadStepProps {
   onFileSelected: (file: File) => void;
+  format: ProposalFormat;
+  onFormatChange: (format: ProposalFormat) => void;
+  disableFormatDropdown: boolean;
 }
+
+const PROPOSAL_FORMAT_OPTIONS = [
+  { value: ProposalFormat.Talk, label: 'Talk' },
+  { value: ProposalFormat.Workshop, label: 'Workshop' },
+  { value: ProposalFormat.Panel, label: 'Panel' },
+  { value: ProposalFormat.LightningTalk, label: 'Lightning Talk' },
+  { value: ProposalFormat.Other, label: 'Other' },
+];
 
 export const UploadStep = (props: UploadStepProps) => (
   <div className="space-y-8">
@@ -51,6 +64,20 @@ export const UploadStep = (props: UploadStepProps) => (
           )}
         </div>
       </div>
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-5">
+        Format
+      </label>
+      <DropDown
+        value={props.format}
+        disabled={props.disableFormatDropdown}
+        options={PROPOSAL_FORMAT_OPTIONS}
+        align="left"
+        variant="compact"
+        onChange={(v) => props.onFormatChange(v)}
+      />
     </div>
 
     <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-16 cursor-pointer hover:border-brand-500 dark:hover:border-brand-400 transition">

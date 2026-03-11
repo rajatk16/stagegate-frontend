@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Loader2 } from 'lucide-react';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import Papa from 'papaparse';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 
-import { normalizeLocation } from '@/utils/localtionNormalizer';
+import { BULK_CREATE_PROPOSALS, EVENT_BY_SLUG, ProposalFormat } from '@/graphql';
+import { normalizeLocation } from '@/utils';
 import { ImportProposalStepIndicator } from './ImportProposalStepIndicator';
 import { PreviewStep } from './PreviewStep';
 import { ResultStep } from './ResultStep';
@@ -15,12 +17,33 @@ const REQUIRED_HEADERS = ['title', 'speaker_name', 'speaker_email', 'abstract'];
 const MAX_ROWS = 2000;
 const MAX_FILE_SIZE_MB = 5;
 
+const chunkArray = (array: any[], size: number) => {
+  const chunks: any[][] = [];
+
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+
+  return chunks;
+};
+
 export const ImportProposalsPage = () => {
   const { orgSlug, eventSlug } = useParams<{
     orgSlug: string;
     eventSlug: string;
   }>();
 
+  const { data, loading, error } = useQuery(EVENT_BY_SLUG, {
+    variables: { orgSlug: orgSlug!, eventSlug: eventSlug! },
+    skip: !orgSlug || !eventSlug,
+  });
+
+  const [bulkImportProposals] = useMutation(BULK_CREATE_PROPOSALS);
+
+  const eventId = data?.eventBySlug.id;
+  const organizationId = data?.eventBySlug.organization.id;
+
+  const [format, setFormat] = useState<ProposalFormat>(ProposalFormat.Talk);
   const [rows, setRows] = useState<any[]>([]);
   const [step, setStep] = useState<string>('upload');
   const [result, setResult] = useState<{
@@ -137,15 +160,59 @@ export const ImportProposalsPage = () => {
   };
 
   const handleImport = async () => {
+    if (!eventId || !organizationId) {
+      setErrors(['Missing event details.']);
+      setStep('validate');
+      return;
+    }
     setStep('importing');
 
     try {
-      // TODO: Implement import logic
+      const batchSize = 25;
+      const batches = chunkArray(rows, batchSize);
+
+      let totalCreated = 0;
+      let totalSkipped = 0;
+
+      for (const batch of batches) {
+        const response = await bulkImportProposals({
+          variables: {
+            input: {
+              eventId: eventId!,
+              organizationId: organizationId!,
+              format,
+              proposals: batch.map((row) => ({
+                title: row.title,
+                abstract: row.abstract,
+                description: row.description,
+                duration: row.duration,
+                speakerName: row.speaker_name,
+                speakerEmail: row.speaker_email,
+                speakerBio: row.speaker_bio,
+                speakerOccupation: {
+                  company: row.company,
+                  title: row.role,
+                },
+                speakerLocation: {
+                  country: row.location,
+                },
+              })),
+            },
+          },
+        });
+
+        const result = response.data?.bulkCreateProposals;
+
+        if (result) {
+          totalCreated += result.created;
+          totalSkipped += result.skipped;
+        }
+      }
 
       setResult({
         total: rows.length,
-        created: rows.length,
-        skipped: 0,
+        created: totalCreated ?? 0,
+        skipped: totalSkipped ?? 0,
       });
       setStep('result');
     } catch (error) {
@@ -154,54 +221,106 @@ export const ImportProposalsPage = () => {
     }
   };
 
+  if (!loading && (error || !data?.eventBySlug || !eventId || !organizationId)) {
+    return (
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 py-10">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white dark:bg-gray-800 border rounded-xl p-8 text-center space-y-4">
+            <AlertCircle className="w-10 h-10 text-red-500 dark:text-red-400 inline-block mr-2" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Unable to load event data.
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400">
+              {error?.message
+                ? 'An error occurred while loading the event data.'
+                : 'The requested event was not found.'}
+            </p>
+            <Link
+              to={`/dashboard`}
+              className="inline-block text-sm text-brand-500 hover:text-brand-600 dark:hover:text-brand-400 hover:underline transition"
+            >
+              Go back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 py-10">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="space-y-2 flex flex-col gap-2">
-          <Link
-            to={`/organizations/${orgSlug}/events/${eventSlug}`}
-            className="text-sm text-brand-500 hover:text-brand-600 dark:hover:text-brand-400 hover:underline transition"
-          >
-            Back to Event
-          </Link>
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Import Proposals
-            </h1>
-
-            <p className="text-gray-500 dark:text-gray-400">
-              Upload a CSV file to bulk import proposals for this event.
-            </p>
-          </div>
-          <ImportProposalStepIndicator step={step} />
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl border p-8 space-y-6">
-          {step === 'upload' && <UploadStep onFileSelected={handleFile} />}
-
-          {step == 'validate' && (
-            <ValidateStep
-              errors={errors}
-              onClick={() => {
-                setErrors([]);
-                setStep('upload');
-              }}
-            />
-          )}
-
-          {step === 'preview' && <PreviewStep rows={rows} onConfirm={handleImport} />}
-
-          {step === 'importing' && (
-            <div className="flex items-center gap-2">
-              <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
-              <span className="text-gray-500 dark:text-gray-400">Importing proposals...</span>
+      <div className={`max-w-7xl mx-auto space-y-6 ${loading ? 'animate-pulse' : ''}`}>
+        {loading ? (
+          <>
+            <div className="space-y-4">
+              <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="h-4 w-96 bg-gray-200 dark:bg-gray-700 rounded" />
             </div>
-          )}
+            <div className="bg-white dark:bg-gray-800 rounded-xl border p-8 space-y-6">
+              <div className="h-10 w-full bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="h-10 w-full bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="h-10 w-40 bg-gray-200 dark:bg-gray-700 rounded" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="space-y-2 flex flex-col gap-2">
+              <Link
+                to={`/organizations/${orgSlug}/events/${eventSlug}`}
+                className="text-sm text-brand-500 hover:text-brand-600 dark:hover:text-brand-400 hover:underline transition"
+              >
+                Back to Event
+              </Link>
+              <div className="flex flex-col gap-2">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  Import Proposals
+                </h1>
 
-          {step === 'result' && (
-            <ResultStep result={result} orgSlug={orgSlug!} eventSlug={eventSlug!} />
-          )}
-        </div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Upload a CSV file to bulk import proposals for {data?.eventBySlug?.name}.
+                </p>
+              </div>
+              <ImportProposalStepIndicator step={step} />
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl border p-8 space-y-6">
+              {step === 'upload' && (
+                <UploadStep
+                  onFileSelected={handleFile}
+                  format={format}
+                  onFormatChange={setFormat}
+                  disableFormatDropdown={loading}
+                />
+              )}
+
+              {step == 'validate' && (
+                <ValidateStep
+                  errors={errors}
+                  onClick={() => {
+                    setErrors([]);
+                    setStep('upload');
+                  }}
+                />
+              )}
+
+              {step === 'preview' && <PreviewStep rows={rows} onConfirm={handleImport} />}
+
+              {step === 'importing' && (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Importing proposals...
+                  </span>
+                </div>
+              )}
+
+              {step === 'result' && (
+                <ResultStep result={result} orgSlug={orgSlug!} eventSlug={eventSlug!} />
+              )}
+            </div>
+          </>
+        )}
       </div>
     </main>
   );
