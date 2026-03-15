@@ -7,6 +7,8 @@ export * from './OrgLogoUploader';
 
 // Badges
 export * from './EventBadges';
+export * from './ProposalFormatBadge';
+export * from './ProposalStatusBadge';
 
 // Event Page
 export * from './MemberActionsCell';

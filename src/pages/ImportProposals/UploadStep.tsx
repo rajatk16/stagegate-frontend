@@ -35,7 +35,7 @@ export const UploadStep = (props: UploadStepProps) => (
         </h3>
 
         <div className="flex flex-wrap gap-2">
-          {['title', 'abstract', 'speaker_name', 'speaker_email'].map((c) => (
+          {['title', 'abstract', 'speakerName', 'speakerEmail'].map((c) => (
             <span
               key={c}
               className="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium"
@@ -52,16 +52,14 @@ export const UploadStep = (props: UploadStepProps) => (
         </h3>
 
         <div className="flex flex-wrap gap-2">
-          {['description', 'duration', 'speaker_bio', 'location', 'company', 'role'].map(
-            (c) => (
-              <span
-                key={c}
-                className="px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 font-medium"
-              >
-                {c}
-              </span>
-            ),
-          )}
+          {['description', 'duration', 'speakerBio', 'country', 'company', 'role'].map((c) => (
+            <span
+              key={c}
+              className="px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 font-medium"
+            >
+              {c}
+            </span>
+          ))}
         </div>
       </div>
     </div>

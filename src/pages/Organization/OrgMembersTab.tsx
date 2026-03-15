@@ -20,13 +20,15 @@ export const OrgMembersTab = (props: { slug: string }) => {
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
 
-  const { data, loading, error } = useQuery(ORGANIZATION_MEMBERS, {
-    variables: { slug: props.slug },
-    context: {
-      headers: {
-        Authorization: `Bearer ${token}`,
+  const { data, loading, error, fetchMore } = useQuery(ORGANIZATION_MEMBERS, {
+    variables: {
+      slug: props.slug,
+      pagination: {
+        limit: 20,
+        cursor: null,
       },
     },
+    notifyOnNetworkStatusChange: true,
   });
 
   const [changeOrgMemberRole] = useMutation(CHANGE_ORG_MEMBER_ROLE, {
@@ -103,6 +105,37 @@ export const OrgMembersTab = (props: { slug: string }) => {
     });
   };
 
+  const nextCursor = data?.organizationBySlug.members.pagination?.cursor;
+
+  const loadMore = async () => {
+    if (!nextCursor || loading) return;
+
+    await fetchMore({
+      variables: {
+        pagination: {
+          limit: 20,
+          cursor: nextCursor,
+        },
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+
+        return {
+          organizationBySlug: {
+            ...prev.organizationBySlug,
+            members: {
+              ...fetchMoreResult.organizationBySlug.members,
+              results: [
+                ...(prev.organizationBySlug.members.results ?? []),
+                ...(fetchMoreResult.organizationBySlug.members.results ?? []),
+              ],
+            },
+          },
+        };
+      },
+    });
+  };
+
   return (
     <>
       <OrgMembersTable
@@ -110,11 +143,13 @@ export const OrgMembersTab = (props: { slug: string }) => {
         data={data}
         error={error}
         loading={loading}
+        loadMore={loadMore}
         activeUserId={activeUserId}
+        hasMore={Boolean(nextCursor)}
         onRoleChange={handleRoleChange}
+        setActiveUserId={setActiveUserId}
         onRemoveMember={handleRemoveMember}
         onLeaveOrganization={() => setShowLeaveModal(true)}
-        setActiveUserId={setActiveUserId}
       />
 
       <LeaveOrganizationModal

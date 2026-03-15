@@ -6,26 +6,16 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 
 import { BULK_CREATE_PROPOSALS, EVENT_BY_SLUG, ProposalFormat } from '@/graphql';
-import { normalizeLocation } from '@/utils';
+import { buildProposalBatches, normalizeLocation } from '@/utils';
 import { ImportProposalStepIndicator } from './ImportProposalStepIndicator';
 import { PreviewStep } from './PreviewStep';
 import { ResultStep } from './ResultStep';
 import { UploadStep } from './UploadStep';
 import { ValidateStep } from './ValidateStep';
 
-const REQUIRED_HEADERS = ['title', 'speaker_name', 'speaker_email', 'abstract'];
+const REQUIRED_HEADERS = ['title', 'speakerName', 'speakerEmail', 'abstract'];
 const MAX_ROWS = 2000;
 const MAX_FILE_SIZE_MB = 5;
-
-const chunkArray = (array: any[], size: number) => {
-  const chunks: any[][] = [];
-
-  for (let i = 0; i < array.length; i += size) {
-    chunks.push(array.slice(i, i + size));
-  }
-
-  return chunks;
-};
 
 export const ImportProposalsPage = () => {
   const { orgSlug, eventSlug } = useParams<{
@@ -52,11 +42,17 @@ export const ImportProposalsPage = () => {
     skipped: number;
   } | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const [importProgress, setImportProgress] = useState({
+    imported: 0,
+    total: 0,
+    currentBatch: 0,
+    totalBatches: 0,
+  });
 
   const normalizeHeaders = (row: any) => {
     const normalized: any = {};
     Object.keys(row).forEach((key) => {
-      normalized[key.trim().toLowerCase()] = row[key];
+      normalized[key.trim()] = row[key];
     });
     return normalized;
   };
@@ -66,10 +62,10 @@ export const ImportProposalsPage = () => {
     abstract: row.abstract?.trim(),
     description: row.description?.trim() ?? null,
     duration: row.duration && !isNaN(Number(row.duration)) ? Number(row.duration) : null,
-    speaker_name: row.speaker_name?.trim(),
-    speaker_email: row.speaker_email?.trim(),
-    speaker_bio: row.speaker_bio?.trim() ?? null,
-    location: normalizeLocation(row.location?.trim() ?? null),
+    speakerName: row.speakerName?.trim(),
+    speakerEmail: row.speakerEmail?.trim(),
+    speakerBio: row.speakerBio?.trim() ?? null,
+    country: normalizeLocation(row.location?.trim() ?? null),
     company: row.company?.trim() ?? null,
     role: row.role?.trim() ?? null,
   });
@@ -102,11 +98,11 @@ export const ImportProposalsPage = () => {
         errors.push(`Row ${index + 2}: Missing title.`);
       }
 
-      if (!row.speaker_name?.trim()) {
+      if (!row.speakerName?.trim()) {
         errors.push(`Row ${index + 2}: Missing speaker name.`);
       }
 
-      if (!row.speaker_email?.trim()) {
+      if (!row.speakerEmail?.trim()) {
         errors.push(`Row ${index + 2}: Missing speaker email.`);
       }
 
@@ -160,6 +156,7 @@ export const ImportProposalsPage = () => {
   };
 
   const handleImport = async () => {
+    const CONCURRENT_BATCHES = 3;
     if (!eventId || !organizationId) {
       setErrors(['Missing event details.']);
       setStep('validate');
@@ -168,46 +165,78 @@ export const ImportProposalsPage = () => {
     setStep('importing');
 
     try {
-      const batchSize = 25;
-      const batches = chunkArray(rows, batchSize);
+      const proposals = rows.map((row) => ({
+        title: row.title,
+        abstract: row.abstract,
+        description: row.description,
+        duration: row.duration,
+        speakerName: row.speakerName,
+        speakerEmail: row.speakerEmail,
+        speakerBio: row.speakerBio,
+        speakerOccupation: {
+          company: row.company,
+          title: row.role,
+        },
+        speakerLocation: {
+          country: row.country,
+        },
+      }));
+      const batches = buildProposalBatches(
+        proposals,
+        (batch) => ({
+          input: {
+            eventId: eventId!,
+            organizationId: organizationId!,
+            format,
+            proposals: batch,
+          },
+        }),
+        50 * 1024,
+      );
+      setImportProgress({
+        imported: 0,
+        total: rows.length,
+        currentBatch: 0,
+        totalBatches: batches.length,
+      });
 
       let totalCreated = 0;
       let totalSkipped = 0;
 
-      for (const batch of batches) {
-        const response = await bulkImportProposals({
-          variables: {
-            input: {
-              eventId: eventId!,
-              organizationId: organizationId!,
-              format,
-              proposals: batch.map((row) => ({
-                title: row.title,
-                abstract: row.abstract,
-                description: row.description,
-                duration: row.duration,
-                speakerName: row.speaker_name,
-                speakerEmail: row.speaker_email,
-                speakerBio: row.speaker_bio,
-                speakerOccupation: {
-                  company: row.company,
-                  title: row.role,
-                },
-                speakerLocation: {
-                  country: row.location,
-                },
-              })),
+      let batchIndex = 0;
+
+      async function worker() {
+        while (batchIndex < batches.length) {
+          const currentIndex = batchIndex++;
+          const batch = batches[currentIndex];
+
+          const response = await bulkImportProposals({
+            variables: {
+              input: {
+                eventId: eventId!,
+                organizationId: organizationId!,
+                format,
+                proposals: batch,
+              },
             },
-          },
-        });
+          });
 
-        const result = response.data?.bulkCreateProposals;
+          const result = response.data?.bulkCreateProposals;
 
-        if (result) {
-          totalCreated += result.created;
-          totalSkipped += result.skipped;
+          if (result) {
+            totalCreated += result.created;
+            totalSkipped += result.skipped;
+          }
+
+          setImportProgress((prev) => ({
+            ...prev,
+            imported: prev.imported + batch.length,
+            currentBatch: currentIndex + 1,
+          }));
         }
       }
+
+      await Promise.all(Array.from({ length: CONCURRENT_BATCHES }, () => worker()));
 
       setResult({
         total: rows.length,
@@ -307,11 +336,30 @@ export const ImportProposalsPage = () => {
               {step === 'preview' && <PreviewStep rows={rows} onConfirm={handleImport} />}
 
               {step === 'importing' && (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
-                  <span className="text-gray-500 dark:text-gray-400">
-                    Importing proposals...
-                  </span>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">
+                      Importing proposals...
+                    </span>
+                  </div>
+
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Imported {importProgress.imported} of {importProgress.total} proposals.
+                  </div>
+
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="bg-brand-500 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${
+                          importProgress.total
+                            ? (importProgress.imported / importProgress.total) * 100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
                 </div>
               )}
 

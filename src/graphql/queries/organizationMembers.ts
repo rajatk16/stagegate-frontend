@@ -5,11 +5,15 @@ export const ORGANIZATION_MEMBERS: TypedDocumentNode<
   OrgMembersQuery,
   OrgMembersQueryVariables
 > = gql`
-  query OrgMembers($slug: String!) {
+  query OrgMembers($slug: String!, $pagination: PaginationInput) {
     organizationBySlug(slug: $slug) {
       id
       viewerRole
-      members {
+      members(pagination: $pagination) {
+        pagination {
+          cursor
+          total
+        }
         results {
           role
           user {

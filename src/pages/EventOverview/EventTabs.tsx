@@ -1,4 +1,4 @@
-import { Calendar, Settings, Users } from 'lucide-react';
+import { Calendar, FileText, Settings, Users } from 'lucide-react';
 
 import { EventMemberRole, type EventBySlugQuery } from '@/graphql';
 import { Tabs } from '@/ui';
@@ -19,6 +19,12 @@ export const EventTabs = (props: EventTabsProps) => {
           label: 'Overview',
           icon: Calendar,
           value: 'overview',
+          hidden: false,
+        },
+        {
+          label: 'Proposals',
+          icon: FileText,
+          value: 'proposals',
           hidden: false,
         },
         {
