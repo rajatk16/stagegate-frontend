@@ -61,11 +61,11 @@ export const PreviewProposalsTable = (props: PreviewProposalsTableProps) => {
                     {row.description?.slice(0, 100)}...
                   </td>
                   <td className="px-4 py-3 text-gray-400 dark:white">{row.duration} minutes</td>
-                  <td className="px-4 py-3 text-gray-400 dark:white">{row.speaker_name}</td>
-                  <td className="px-4 py-3 text-gray-400 dark:white">{row.speaker_email}</td>
-                  <td className="px-4 py-3 text-gray-400 dark:white">{row.location}</td>
+                  <td className="px-4 py-3 text-gray-400 dark:white">{row.speakerName}</td>
+                  <td className="px-4 py-3 text-gray-400 dark:white">{row.speakerEmail}</td>
+                  <td className="px-4 py-3 text-gray-400 dark:white">{row.country}</td>
                   <td className="px-4 py-3 text-gray-400 dark:white">
-                    {row.speaker_bio?.slice(0, 100)}
+                    {row.speakerBio?.slice(0, 100)}
                   </td>
                   <td className="px-4 py-3 text-gray-400 dark:white">{row.company}</td>
                   <td className="px-4 py-3 text-gray-400 dark:white">{row.role}</td>

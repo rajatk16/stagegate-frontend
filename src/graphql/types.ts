@@ -119,8 +119,7 @@ export type Event = {
 };
 
 export type EventMembersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export enum EventFormat {
@@ -161,6 +160,12 @@ export type EventMembers = {
   __typename: 'EventMembers';
   pagination: Maybe<Pagination>;
   results: Array<EventMember>;
+};
+
+export type EventProposalsPayload = {
+  __typename: 'EventProposalsPayload';
+  pagination: Pagination;
+  proposals: Maybe<Array<Maybe<Proposal>>>;
 };
 
 export enum EventStatus {
@@ -295,8 +300,7 @@ export type Organization = {
 };
 
 export type OrganizationMembersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export type OrganizationMember = {
@@ -321,7 +325,13 @@ export type OrganizationMembers = {
 export type Pagination = {
   __typename: 'Pagination';
   cursor: Maybe<Scalars['String']['output']>;
-  pageSize: Maybe<Scalars['Int']['output']>;
+  total: Scalars['Int']['output'];
+};
+
+export type PaginationInput = {
+  /** Base64 encoded cursor containing limit and offset values */
+  cursor?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Proposal = {
@@ -381,6 +391,7 @@ export type Query = {
   __typename: 'Query';
   authStatus: Maybe<AuthStatus>;
   eventBySlug: Event;
+  eventProposals: EventProposalsPayload;
   me: Maybe<User>;
   myOrganizations: Array<Organization>;
   organizationBySlug: Organization;
@@ -391,6 +402,12 @@ export type Query = {
 export type QueryEventBySlugArgs = {
   eventSlug: Scalars['String']['input'];
   organizationSlug: Scalars['String']['input'];
+};
+
+export type QueryEventProposalsArgs = {
+  eventId: Scalars['ID']['input'];
+  organizationId: Scalars['ID']['input'];
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export type QueryOrganizationBySlugArgs = {
@@ -710,6 +727,7 @@ export type EventBySlugQuery = {
 export type EventMembersQueryVariables = Exact<{
   orgSlug: Scalars['String']['input'];
   eventSlug: Scalars['String']['input'];
+  pagination?: InputMaybe<PaginationInput>;
 }>;
 
 export type EventMembersQuery = {
@@ -719,6 +737,7 @@ export type EventMembersQuery = {
     viewerEventRole: EventMemberRole | null;
     members: {
       __typename: 'EventMembers';
+      pagination: { __typename: 'Pagination'; cursor: string | null; total: number } | null;
       results: Array<{
         __typename: 'EventMember';
         role: EventMemberRole;
@@ -731,6 +750,29 @@ export type EventMembersQuery = {
         };
       }>;
     };
+  };
+};
+
+export type EventProposalsQueryVariables = Exact<{
+  eventId: Scalars['ID']['input'];
+  organizationId: Scalars['ID']['input'];
+  pagination?: InputMaybe<PaginationInput>;
+}>;
+
+export type EventProposalsQuery = {
+  eventProposals: {
+    __typename: 'EventProposalsPayload';
+    proposals: Array<{
+      __typename: 'Proposal';
+      id: string;
+      title: string;
+      description: string | null;
+      abstract: string | null;
+      duration: number | null;
+      status: ProposalStatus;
+      format: ProposalFormat;
+    } | null> | null;
+    pagination: { __typename: 'Pagination'; total: number; cursor: string | null };
   };
 };
 
@@ -821,6 +863,7 @@ export type OrganizationEventsQuery = {
 
 export type OrgMembersQueryVariables = Exact<{
   slug: Scalars['String']['input'];
+  pagination?: InputMaybe<PaginationInput>;
 }>;
 
 export type OrgMembersQuery = {
@@ -830,6 +873,7 @@ export type OrgMembersQuery = {
     viewerRole: OrganizationMemberRole | null;
     members: {
       __typename: 'OrganizationMembers';
+      pagination: { __typename: 'Pagination'; cursor: string | null; total: number } | null;
       results: Array<{
         __typename: 'OrganizationMember';
         role: OrganizationMemberRole;

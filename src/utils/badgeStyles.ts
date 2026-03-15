@@ -31,6 +31,13 @@ export const ORG_MEMBER_ROLE_STYLES: Record<string, string> = {
   MEMBER: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-200',
 };
 
+export const PROPOSAL_STATUS_STYLES: Record<string, string> = {
+  SUBMITTED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200',
+  ACCEPTED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-200',
+  REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200',
+  DRAFT: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200',
+};
+
 export const labelize = (value: string) =>
   value
     .toLowerCase()

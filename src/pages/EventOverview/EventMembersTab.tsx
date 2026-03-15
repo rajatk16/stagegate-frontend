@@ -9,12 +9,58 @@ interface EventMembersTabProps {
 }
 
 export const EventMembersTab = (props: EventMembersTabProps) => {
-  const { data, loading, error } = useQuery(EVENT_MEMBERS, {
+  const { data, loading, error, fetchMore } = useQuery(EVENT_MEMBERS, {
     variables: {
       orgSlug: props.orgSlug,
       eventSlug: props.eventSlug,
+      pagination: {
+        limit: 20,
+        cursor: null,
+      },
     },
+    notifyOnNetworkStatusChange: true,
   });
 
-  return <EventMembersTable data={data} loading={loading} error={error} />;
+  const nextCursor = data?.eventBySlug?.members?.pagination?.cursor;
+
+  const loadMore = async () => {
+    if (!nextCursor || loading) return;
+
+    await fetchMore({
+      variables: {
+        orgSlug: props.orgSlug,
+        eventSlug: props.eventSlug,
+        pagination: {
+          cursor: nextCursor,
+          limit: 20,
+        },
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+
+        return {
+          eventBySlug: {
+            ...fetchMoreResult.eventBySlug,
+            members: {
+              ...fetchMoreResult.eventBySlug.members,
+              results: [
+                ...(prev.eventBySlug.members.results ?? []),
+                ...(fetchMoreResult.eventBySlug.members.results ?? []),
+              ],
+            },
+          },
+        };
+      },
+    });
+  };
+
+  return (
+    <EventMembersTable
+      loadMore={loadMore}
+      data={data}
+      error={error}
+      loading={loading}
+      hasMore={Boolean(nextCursor)}
+    />
+  );
 };

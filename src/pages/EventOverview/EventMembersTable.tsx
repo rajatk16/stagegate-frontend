@@ -9,6 +9,8 @@ interface EventMembersTableProps {
   loading: boolean;
   error: ErrorLike | undefined;
   data: EventMembersQuery | undefined;
+  hasMore: boolean;
+  loadMore: () => void;
 }
 
 export const EventMembersTable = (props: EventMembersTableProps) => {
@@ -25,21 +27,33 @@ export const EventMembersTable = (props: EventMembersTableProps) => {
     );
   } else {
     return (
-      <div className="mt-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-x-auto">
-        <table className="w-full border-collapse min-w-[640px] sm:min-w-0">
-          <TableHeader labels={['Member', 'Role']} />
+      <>
+        <div className="mt-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-x-auto">
+          <table className="w-full border-collapse min-w-[640px] sm:min-w-0">
+            <TableHeader labels={['Member', 'Role']} />
 
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {props.loading ? (
-              <MembersSkeleton />
-            ) : (
-              props.data?.eventBySlug.members.results.map((m) => (
-                <EventMemberRow key={m.user.id} member={m} />
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {props.loading ? (
+                <MembersSkeleton />
+              ) : (
+                props.data?.eventBySlug.members.results.map((m) => (
+                  <EventMemberRow key={m.user.id} member={m} />
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        {props.hasMore && (
+          <div className="flex justify-center pt-4">
+            <button
+              onClick={props.loadMore}
+              className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer text-gray-700 dark:text-gray-200"
+            >
+              Load more members
+            </button>
+          </div>
+        )}
+      </>
     );
   }
 };
