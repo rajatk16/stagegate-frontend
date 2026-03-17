@@ -162,6 +162,10 @@ export type EventMembers = {
   results: Array<EventMember>;
 };
 
+export type EventProposalsFilterInput = {
+  format?: InputMaybe<ProposalFormat>;
+};
+
 export type EventProposalsPayload = {
   __typename: 'EventProposalsPayload';
   pagination: Pagination;
@@ -406,6 +410,7 @@ export type QueryEventBySlugArgs = {
 
 export type QueryEventProposalsArgs = {
   eventId: Scalars['ID']['input'];
+  filter?: InputMaybe<EventProposalsFilterInput>;
   organizationId: Scalars['ID']['input'];
   pagination?: InputMaybe<PaginationInput>;
 };
@@ -757,6 +762,7 @@ export type EventProposalsQueryVariables = Exact<{
   eventId: Scalars['ID']['input'];
   organizationId: Scalars['ID']['input'];
   pagination?: InputMaybe<PaginationInput>;
+  filter?: InputMaybe<EventProposalsFilterInput>;
 }>;
 
 export type EventProposalsQuery = {
