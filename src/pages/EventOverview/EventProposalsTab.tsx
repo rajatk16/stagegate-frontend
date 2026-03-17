@@ -1,5 +1,7 @@
 import { useQuery } from '@apollo/client/react';
 import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 
 import { ProposalFormatBadge, ProposalStatusBadge } from '@/components';
@@ -9,16 +11,28 @@ import {
   ProposalStatus,
   type EventBySlugQuery,
 } from '@/graphql';
-import { Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { DropDown } from '@/ui';
 import { ProposalsList } from './ProposalsList';
 
 interface EventProposalsTabProps {
   event: EventBySlugQuery['eventBySlug'];
 }
 
+const PROPOSAL_FORMAT_OPTIONS = [
+  { value: null, label: 'All' },
+  { value: ProposalFormat.Talk, label: 'Talk' },
+  { value: ProposalFormat.Workshop, label: 'Workshop' },
+  { value: ProposalFormat.Panel, label: 'Panel' },
+  { value: ProposalFormat.LightningTalk, label: 'Lightning Talk' },
+  { value: ProposalFormat.Other, label: 'Other' },
+];
+
 export const EventProposalsTab = (props: EventProposalsTabProps) => {
-  const { data, loading, error, fetchMore } = useQuery(EVENT_PROPOSALS, {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [selectedProposal, setSelectedProposal] = useState<any | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<ProposalFormat | null>(null);
+
+  const { data, loading, error, fetchMore, refetch } = useQuery(EVENT_PROPOSALS, {
     variables: {
       eventId: props.event.id,
       organizationId: props.event.organization.id,
@@ -26,11 +40,12 @@ export const EventProposalsTab = (props: EventProposalsTabProps) => {
         limit: 20,
         cursor: null,
       },
+      filter: {
+        format: selectedFormat ?? null,
+      },
     },
     notifyOnNetworkStatusChange: true,
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedProposal, setSelectedProposal] = useState<any | null>(null);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -55,6 +70,9 @@ export const EventProposalsTab = (props: EventProposalsTabProps) => {
           cursor: nextCursor,
           limit: 20,
         },
+        filter: {
+          format: selectedFormat ?? null,
+        },
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
@@ -68,6 +86,22 @@ export const EventProposalsTab = (props: EventProposalsTabProps) => {
             ],
           },
         };
+      },
+    });
+  };
+
+  const handleFormatChange = async (value: ProposalFormat | null) => {
+    setSelectedFormat(value);
+
+    await refetch({
+      organizationId: props.event.organization.id,
+      eventId: props.event.id,
+      pagination: {
+        limit: 20,
+        cursor: null,
+      },
+      filter: {
+        format: value,
       },
     });
   };
@@ -91,6 +125,20 @@ export const EventProposalsTab = (props: EventProposalsTabProps) => {
           </Link>
         )}
       </div>
+
+      {!loading && !error && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Format</span>
+            <DropDown
+              variant="compact"
+              value={selectedFormat}
+              onChange={handleFormatChange}
+              options={PROPOSAL_FORMAT_OPTIONS}
+            />
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
